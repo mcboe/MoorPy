@@ -30,11 +30,11 @@ from moorpy.helpers import (rotationMatrix, rotatePosition, getH, printVec,
 
 class System():
     '''A class for the whole mooring system'''
-    
+    print("IK GEBRUIK DEZE DUS")
     # >>> note: system module will need to import Line, Point, Body for its add/creation routines 
     #     (but line/point/body modules shouldn't import system) <<<
     
-    def __init__(self, file="", dirname="", rootname="", depth=0, rho=1025, g=9.81, qs=1, Fortran=True, lineProps=None, **kwargs):
+    def __init__(self, file="", dirname="", rootname="", depth=0, rho=1025, g=9.81, qs=1, Fortran=True, lineProps=None, T0=0, **kwargs):
         '''Creates an empty MoorPy mooring system data structure and will read an input file if provided.
 
         Parameters
@@ -72,6 +72,7 @@ class System():
         self.groundBody = Body(self, 0, 1, np.zeros(6))   # <<< implementation not complete <<<< be careful here if/when MoorPy is split up
         
         # constants used in the analysis
+        self.T0 = T0
         self.depth = depth  # water depth [m]
         self.rho   = rho    # water density [kg/m^3]
         self.g     = g      # gravitational acceleration [m/s^2]
@@ -901,6 +902,7 @@ class System():
         # get options entries
         if 'water_depth' in data:
             self.depth = data['water_depth']
+            self.T0 = data['pretension']
             
         if 'rho' in data:
             self.rho = data['rho']
@@ -2394,6 +2396,8 @@ class System():
         
     
     def getSystemStiffness(self, DOFtype="free", dx=0.1, dth=0.1, solveOption=1, lines_only=False, plots=0):
+
+        print('getSystemStiffness ben ik geweest')
         '''Calculates the stiffness matrix for all selected degrees of freedom of a mooring system 
         whether free, coupled, or both (other DOFs are considered fixed).
 
@@ -2532,6 +2536,7 @@ class System():
         
     
     def getCoupledStiffness(self, dx=0.1, dth=0.1, solveOption=1, lines_only=False, tensions=False, nTries=3, plots=0):
+        print('getCoupledStiffness ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated. 
         
@@ -2691,6 +2696,7 @@ class System():
         
     
     def getCoupledStiffnessA(self, lines_only=False, tensions=False):
+        print('getCoupledStiffnessA ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated - analytical appraoch. 
         
@@ -2753,6 +2759,7 @@ class System():
     
     
     def getSystemStiffnessA(self, DOFtype="free", lines_only=False, rho=1025, g=9.81):
+        print('getSystemStiffnessA ben ik geweest')
         '''A method to calculate the system's stiffness matrix based entirely on analytic gradients from catenary
 
         Parameters

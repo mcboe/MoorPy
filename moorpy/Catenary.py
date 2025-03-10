@@ -9,7 +9,9 @@ from moorpy.helpers import CatenaryError, dsolve2
 
 
 def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001, 
-             nNodes=20, MaxIter=100, plots=0, depth=0):
+             nNodes=20, MaxIter=100, plots=0, depth=0, T0=0):
+    
+    print('Ik gebruik deze catenary function')
     '''
     The quasi-static mooring line solver. Adapted from catenary subroutine in FAST v7 by J. Jonkman.
     Note: this version is updated Oct 7 2020 to use the dsolve solver.
@@ -65,7 +67,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
     
     '''
 
-    vertical_threshold = 0.0001  # the XF/ZF ratio below which the line will be approximated as vertical to avoid catenary errors (this could become an input parameter)
+    vertical_threshold = 1 # the XF/ZF ratio below which the line will be approximated as vertical to avoid catenary errors (this could become an input parameter)
     
     # Set a very small value to use as the horizontal stiffness in slack cases
     # instead of to avoid indeterminant stiffness matrices and to allow the
@@ -76,7 +78,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
     # make info dict to contain any additional outputs
     info = dict(error=False)
     
-    info['call'] = f"catenary({XF}, {ZF}, {L}, {EA}, {W}, CB={CB}, alpha={alpha}, HF0={HF0}, VF0={VF0}, Tol={Tol}, MaxIter={MaxIter}, depth={depth}, plots=1)"
+    info['call'] = f"catenary({XF}, {ZF}, {L}, {EA}, {W}, CB={CB}, alpha={alpha}, HF0={HF0}, VF0={VF0}, Tol={Tol}, MaxIter={MaxIter}, depth={depth}, T0={T0}, plots=1)"
     
     
     # make some arrays if needed for plotting each node
@@ -245,181 +247,222 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
                         Te[I] = HF - CB*W*(L-s[I])
         
     
-    # ProfileType 4 case - fully slack
-    elif (W > 0.0) and (L >= XF/np.cos(np.radians(alpha)) + LHanging):
-        
-        if hA == 0.0:  # one end on seabed
-            ProfileType = 4        
-            # this is a special case that requires no iteration
+    # # ProfileType 4 case - fully slack
+    # elif (W > 0.0) and (L >= XF/np.cos(np.radians(alpha)) + LHanging):
+    #     print('Kom ik hier?')
+    #     if hA == 0.0:  # one end on seabed
+    #         ProfileType = 4        
+    #         # this is a special case that requires no iteration
             
-            HF = 0.0
-            VF = W*LHanging
-            HA = 0.0
-            VA = 0.0
+    #         HF = 0.0
+    #         VF = W*LHanging
+    #         HA = 0.0
+    #         VA = 0.0
             
-            dVF_dZF = W / np.sqrt(2.0*ZF/EA_W + 1.0)  # vertical stiffness
+    #         dVF_dZF = W / np.sqrt(2.0*ZF/EA_W + 1.0)  # vertical stiffness
             
-            info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
-            info["VF"] = VF
-            info["stiffnessB"]  = np.array([[slack_kx, 0.0], [0.0, dVF_dZF]])
-            info["stiffnessA"]  = np.array([[slack_kx, 0.0], [0.0, W]]) 
-            info["stiffnessBA"] = np.array([[0.0, 0.0], [0.0, 0.0]])
-            info["LBot"] = L - LHanging
-            info['ProfileType'] = 4
-            info['Zextreme'] = 0
+    #         info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
+    #         info["VF"] = VF
+    #         info["stiffnessB"]  = np.array([[slack_kx, 0.0], [0.0, dVF_dZF]])
+    #         info["stiffnessA"]  = np.array([[slack_kx, 0.0], [0.0, W]]) 
+    #         info["stiffnessBA"] = np.array([[0.0, 0.0], [0.0, 0.0]])
+    #         info["LBot"] = L - LHanging
+    #         info['ProfileType'] = 4
+    #         info['Zextreme'] = 0
     
     
-            if plots > 0:
+    #         if plots > 0:
         
-                cos_alpha = np.cos(np.radians(alpha))
-                tan_alpha = np.tan(np.radians(alpha))
+    #             cos_alpha = np.cos(np.radians(alpha))
+    #             tan_alpha = np.tan(np.radians(alpha))
         
-                for I in range(nNodes):
-                    if s[I] > L-LHanging:   # this node is on the suspended/hanging portion of the line
+    #             for I in range(nNodes):
+    #                 if s[I] > L-LHanging:   # this node is on the suspended/hanging portion of the line
                     
-                        Xs[I] = XF
-                        Zs[I] = ZF - ( L-s[I] + 0.5*W/EA*(L-s[I])**2 )
-                        Te[I] = W*(s[I]-(L-LHanging))
+    #                     Xs[I] = XF
+    #                     Zs[I] = ZF - ( L-s[I] + 0.5*W/EA*(L-s[I])**2 )
+    #                     Te[I] = W*(s[I]-(L-LHanging))
                         
-                    else:                   # this node is on the seabed
+    #                 else:                   # this node is on the seabed
                         
-                        Xs[I] = np.min([s[I]*cos_alpha, XF])
-                        Zs[I] = Xs[I]*tan_alpha
-                        Te[I] = 0.0
+    #                     Xs[I] = np.min([s[I]*cos_alpha, XF])
+    #                     Zs[I] = Xs[I]*tan_alpha
+    #                     Te[I] = 0.0
                         
                         
-        else:  # U shaped
-            ProfileType = 5   
+    #     else:  # U shaped
+    #         ProfileType = 5   
             
-            # >>> this case should be extended to support sloped seabeds <<<
-            if not alpha == 0: raise CatenaryError("Skack U profile along seabed but seabed is sloped - not yet supported")
+    #         # >>> this case should be extended to support sloped seabeds <<<
+    #         if not alpha == 0: raise CatenaryError("Skack U profile along seabed but seabed is sloped - not yet supported")
     
-            HF = 0.0
-            VF = W*LHanging2
-            HA = 0.0
-            VA = -W*LHanging1
+    #         HF = 0.0
+    #         VF = W*LHanging2
+    #         HA = 0.0
+    #         VA = -W*LHanging1
             
-            dVF_dZF = W / np.sqrt(2.0*ZF/EA_W + 1.0)  # vertical stiffness
+    #         dVF_dZF = W / np.sqrt(2.0*ZF/EA_W + 1.0)  # vertical stiffness
             
-            info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
-            info["VF"] = VF
-            info["stiffnessB"]  = np.array([[slack_kx, 0.0], [0.0, W / np.sqrt(2.0*hB/EA_W + 1.0)]])
-            info["stiffnessA"]  = np.array([[slack_kx, 0.0], [0.0, W / np.sqrt(2.0*hA/EA_W + 1.0)]])
-            info["stiffnessBA"] = np.array([[0.0, 0.0], [0.0, 0.0]])
-            info["LBot"] = L - LHanging
-            info['ProfileType'] = 5
-            info['Zextreme'] = -hA
+    #         info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
+    #         info["VF"] = VF
+    #         info["stiffnessB"]  = np.array([[slack_kx, 0.0], [0.0, W / np.sqrt(2.0*hB/EA_W + 1.0)]])
+    #         info["stiffnessA"]  = np.array([[slack_kx, 0.0], [0.0, W / np.sqrt(2.0*hA/EA_W + 1.0)]])
+    #         info["stiffnessBA"] = np.array([[0.0, 0.0], [0.0, 0.0]])
+    #         info["LBot"] = L - LHanging
+    #         info['ProfileType'] = 5
+    #         info['Zextreme'] = -hA
     
         
-            if plots > 0:
+    #         if plots > 0:
         
-                for I in range(nNodes):
-                    if s[I] <   LHanging1:          # the 1st suspended/hanging portion of the line
-                        Xs[I] = 0.0
-                        Zs[I] = -s[I] - W/EA*(LHanging1*s[I] - 0.5*s[I]**2 )
-                        Te[I] = W*s[I]
+    #             for I in range(nNodes):
+    #                 if s[I] <   LHanging1:          # the 1st suspended/hanging portion of the line
+    #                     Xs[I] = 0.0
+    #                     Zs[I] = -s[I] - W/EA*(LHanging1*s[I] - 0.5*s[I]**2 )
+    #                     Te[I] = W*s[I]
                     
-                    elif s[I] <= L-LHanging2:       # the middle portion of the line, slack along the seabed
-                        Xs[I] = (s[I]-LHanging1)*XF/(L-LHanging1-LHanging2)
-                        Zs[I] = -hA
-                        Te[I] = 0.0                        
+    #                 elif s[I] <= L-LHanging2:       # the middle portion of the line, slack along the seabed
+    #                     Xs[I] = (s[I]-LHanging1)*XF/(L-LHanging1-LHanging2)
+    #                     Zs[I] = -hA
+    #                     Te[I] = 0.0                        
                         
-                    else:                           # the 2nd suspended/hanging portion of the line
-                        Lms = L - s[I]              # distance from end B
-                        Xs[I] = XF
-                        Zs[I] = ZF - Lms - W/EA*(LHanging2*Lms - 0.5*Lms**2 )
-                        Te[I] = W*Lms
+    #                 else:                           # the 2nd suspended/hanging portion of the line
+    #                     Lms = L - s[I]              # distance from end B
+    #                     Xs[I] = XF
+    #                     Zs[I] = ZF - Lms - W/EA*(LHanging2*Lms - 0.5*Lms**2 )
+    #                     Te[I] = W*Lms
     
 
-    # ProfileType 6 case - vertical line without seabed contact     
-    elif (ZF > 0 and XF/ZF < vertical_threshold):
-        ProfileType = 6    
+    # # ProfileType 6 case - vertical line without seabed contact     
+    # elif (ZF > 0 and XF/ZF < vertical_threshold):
+    #     ProfileType = 6    
         
-        dz_hanging = L + 0.5*W/EA*L**2   # stretched length if it was hanging from one end
+    #     delta_L = T0/(EA/L)
+    #     dz_hanging = L + 0.5*W/EA*L**2   # stretched length if it was hanging from one end
         
-        # slack case
-        if dz_hanging >= ZF:
+    #     # slack case
+    #     if dz_hanging >= ZF:
         
-            # figure out how line will hang
-            LB = (ZF + L + W*L**2/2/EA)/(2+W*L/EA)  # unstretched length of line from lowest point up to end B
-            hB = LB + W/2/EA*LB**2                  # stretched of the above
-            LA = L - LB
-            hA = hB - ZF
+    #         # figure out how line will hang
+    #         LB = (ZF + L + W*L**2/2/EA)/(2+W*L/EA)  # unstretched length of line from lowest point up to end B
+    #         hB = LB + W/2/EA*LB**2                  # stretched of the above
+    #         LA = L - LB
+    #         hA = hB - ZF
             
-            HF = 0.0
-            VF = W*LB
-            HA = 0.0
-            VA = W*LA
+    #         HF = 0.0
+    #         VF = W*LB
+    #         HA = 0.0
+    #         VA = W*LA
                     
-            info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
-            info["VF"] = VF
-            info["stiffnessB"]  = np.array([[ VF/ZF, 0.0], [0.0, 0.5*W]])
-            info["stiffnessA"]  = np.array([[ VF/ZF, 0.0], [0.0, 0.5*W]]) 
-            info["stiffnessBA"] = np.array([[-VF/ZF, 0.0], [0.0,-0.5*W]])
-            info["LBot"] = 0.0
-            info['ProfileType'] = 6
-            info['Zextreme'] = -hA
+    #         info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
+    #         info["VF"] = VF
+    #         info["stiffnessB"]  = np.array([[ VF/ZF, 0.0], [0.0, 0.5*W]])
+    #         info["stiffnessA"]  = np.array([[ VF/ZF, 0.0], [0.0, 0.5*W]]) 
+    #         info["stiffnessBA"] = np.array([[-VF/ZF, 0.0], [0.0,-0.5*W]])
+    #         info["LBot"] = 0.0
+    #         info['ProfileType'] = 6
+    #         info['Zextreme'] = -hA
 
 
-            if plots > 0:
+    #         if plots > 0:
         
-                for I in range(nNodes):
-                    if s[I] <   LA:          # the 1st suspended/hanging portion of the line
-                        Xs[I] = XF*(s[I]/L)         # approximate
-                        Zs[I] = -s[I] - W/EA*(LA*s[I] - 0.5*s[I]**2 )
-                        Te[I] = W*(LA - s[I])
-                    else:                           # the 2nd suspended/hanging portion of the line
-                        Lms = L - s[I]              # distance from end B
-                        Xs[I] = XF*(s[I]/L)         # approximate
-                        Zs[I] = ZF - Lms - W/EA*(LB*Lms - 0.5*Lms**2 )
-                        Te[I] = W*(s[I] - LA)
+    #             for I in range(nNodes):
+    #                 if s[I] <   LA:          # the 1st suspended/hanging portion of the line
+    #                     Xs[I] = XF*(s[I]/L)         # approximate
+    #                     Zs[I] = -s[I] - W/EA*(LA*s[I] - 0.5*s[I]**2 )
+    #                     Te[I] = W*(LA - s[I])
+    #                 else:                           # the 2nd suspended/hanging portion of the line
+    #                     Lms = L - s[I]              # distance from end B
+    #                     Xs[I] = XF*(s[I]/L)         # approximate
+    #                     Zs[I] = ZF - Lms - W/EA*(LB*Lms - 0.5*Lms**2 )
+    #                     Te[I] = W*(s[I] - LA)
                     
         # taut case
-        else:
-        
-            # figure out how line will hang
-            #LB = (ZF + L + W*L**2/2/EA)/(2+W*L/EA)  # unstretched length of line from lowest point up to end B
-            #hB = LB + W/2/EA*LB**2                  # stretched of the above
-            #LA = L - LB
-            #hA = hB - ZF
+        # else:
+        #     print('Ik gebruik de taut caseee!!!!')
+        #     # figure out how line will hang
+        #     #LB = (ZF + L + W*L**2/2/EA)/(2+W*L/EA)  # unstretched length of line from lowest point up to end B
+        #     #hB = LB + W/2/EA*LB**2                  # stretched of the above
+        #     #LA = L - LB
+        #     #hA = hB - ZF
             
-            uniform_strain = (ZF - dz_hanging)/L  # the constrant strain due only to stretch - to be added to weight-based strain
-            Tstretch = uniform_strain*EA          # the constant tension component to be added to weight-based tension
+        #     uniform_strain = (ZF - dz_hanging)/L  # the constrant strain due only to stretch - to be added to weight-based strain
+        #     Tstretch = uniform_strain*EA          # the constant tension component to be added to weight-based tension
             
-            HF = 0.0
-            VF = Tstretch + W*L
-            HA = 0.0
-            VA = Tstretch
+        #     HF = 0.0
+        #     VF = Tstretch + W*L
+        #     HA = 0.0
+        #     VA = Tstretch
                     
-            info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
-            info["VF"] = VF
-            info["stiffnessB"]  = np.array([[ VF/ZF, 0.0], [0.0, EA/L]])
-            info["stiffnessA"]  = np.array([[ VF/ZF, 0.0], [0.0, EA/L]]) 
-            info["stiffnessBA"] = np.array([[-VF/ZF, 0.0], [0.0,-EA/L]])
-            info["LBot"] = 0.0
-            info['ProfileType'] = 6
-            info['Zextreme'] = 0
+        #     info["HF"] = HF     # solution to be used to start next call (these are the solved variables, may be for anchor if line is reversed)
+        #     info["VF"] = VF
+        #     info["stiffnessB"]  = np.array([[ VF/ZF, 0.0], [0.0, EA/L]])
+        #     info["stiffnessA"]  = np.array([[ VF/ZF, 0.0], [0.0, EA/L]]) 
+        #     info["stiffnessBA"] = np.array([[-VF/ZF, 0.0], [0.0,-EA/L]])
+        #     info["LBot"] = 0.0
+        #     info['ProfileType'] = 6
+        #     info['Zextreme'] = 0
 
 
-            if plots > 0:
-                for I in range(nNodes):
-                    Lms = L - s[I]              # distance from end B
-                    Xs[I] = XF*(s[I]/L)         # approximate
-                    Zs[I] = ZF - Lms*(1+uniform_strain) - W/EA*(L*Lms - 0.5*Lms**2 )
-                    Te[I] = Tstretch + W*s[I]
-                    
-    
-        
+        #     if plots > 0:
+        #         for I in range(nNodes):
+        #             Lms = L - s[I]              # distance from end B
+        #             Xs[I] = XF*(s[I]/L)         # approximate
+        #             Zs[I] = ZF - Lms*(1+uniform_strain) - W/EA*(L*Lms - 0.5*Lms**2 )
+        #             Te[I] = Tstretch + W*s[I]
+
+        # ProfileType 6 case - Tension Leg Platform (TLP) Tendon (Vertical Line, No Seabed Contact)
+    elif (ZF > 0):  
+        ProfileType = 6  # Identifies this as a TLP mooring case
+
+        # Compute axial elongation due to pretension
+        delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
+        #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/EA
+        print('VFO', VF0, HF0)
+        L_stretched = L #+ delta_L  # Total stretched length
+
+        T = T0 + np.sqrt(HF0**2 + VF0**2)
+
+        # Compute forces (TLP tendons behave like linear springs)
+        HF = T * (XF / L_stretched)  # Horizontal force component
+        VF = T * (ZF / L_stretched)  # Vertical force component
+
+        HA = HF  # Horizontal force at anchor
+        VA = VF  # Vertical force at anchor
+
+        # Define stiffness matrix (pure axial stiffness)
+        K_axial = EA / L  # Axial stiffness
+        K_horizontal = T0 / L  # Small horizontal stiffness
+
+        # Store results in info dictionary
+        info["HF"] = HF  # Horizontal force
+        info["VF"] = VF  # Vertical force
+        info["stiffnessB"]  = np.array([[ K_horizontal, 0.0], [0.0, K_axial]])  # Stiffness at fairlead
+        info["stiffnessA"]  = np.array([[ K_horizontal, 0.0], [0.0, K_axial]])  # Stiffness at anchor
+        info["stiffnessBA"] = np.array([[-K_horizontal, 0.0], [0.0, -K_axial]])  # Coupling stiffness
+        info["LBot"] = 0.0  # No bottom contact
+        info['ProfileType'] = 6
+        info['Zextreme'] = 0  # No slack portion
+
+        # Plotting (for debugging or visualization)
+        if plots > 0:
+            for I in range(nNodes):
+                Lms = L - s[I]  # Distance from end B
+                Xs[I] = XF * (s[I] / L)  # Approximate horizontal position
+                Zs[I] = ZF - Lms * (1 + delta_L / L)  # Stretched vertical position
+                Te[I] = T0  # Constant pretension throughout the tendon            
+        #print('PROFILE TYPE IS', ProfileType)
+                
         
     # Use an iterable solver function to solve for the forces on the line
     else: 
 
         # Initialize some commonly used terms that don't depend on the iteration:
-
         WL =  W *L
         WEA     =  W *EA
         L_EA  =  L /EA
         CB_EA =  CB/EA
+        print('Deze gebruk ik wel')
         #MaxIter = 50 #int(1.0/Tol)   # Smaller tolerances may take more iterations, so choose a maximum inversely proportional to the tolerance
 
         # more initialization
@@ -1033,6 +1076,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         # TODO <<< should add more info <<<
 
     # return horizontal and vertical (positive-up) tension components at each end, and length along seabed
+    #print(info)
     return (FxA, FzA, FxB, FzB, info) 
 
 
@@ -1094,7 +1138,7 @@ def eval_func_cat(X, args):
     #   (these depend on the anticipated configuration of the mooring line):   
     
     # <<< could eliminate frequent division by W below, (make 1/W variable) >>>>>
-    
+    #print('PROFILE TYPE IS', ProfileType)
     # No portion of the line rests on the seabed
     if ProfileType==1: 
         

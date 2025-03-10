@@ -807,10 +807,11 @@ class Line():
         #If EA is found in the line properties we will run the original catenary function 
         if 'EA' in self.type:
             try:
+                print('pretension', self.sys.T0)
                 (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
                      w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
-                     nNodes=self.nNodes, plots=profiles, depth=self.sys.depth)
-            
+                     nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
+                #print(info)
             except CatenaryError as error:
                 raise LineError(self.number, error.message)       
         #If EA isnt found then we will use the ten-str relationship defined in the input file 
