@@ -11,7 +11,7 @@ from moorpy.helpers import CatenaryError, dsolve2
 def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001, 
              nNodes=20, MaxIter=100, plots=0, depth=0, T0=0):
     
-    print('Ik gebruik deze catenary function')
+    #print('Ik gebruik deze catenary function')
     '''
     The quasi-static mooring line solver. Adapted from catenary subroutine in FAST v7 by J. Jonkman.
     Note: this version is updated Oct 7 2020 to use the dsolve solver.
@@ -416,12 +416,12 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         ProfileType = 6  # Identifies this as a TLP mooring case
 
         # Compute axial elongation due to pretension
-        delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
-        #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/EA
-        print('VFO', VF0, HF0)
-        L_stretched = L #+ delta_L  # Total stretched length
+        #delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
+        delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
+        #print('VFO', VF0, HF0)
+        L_stretched = L + delta_L  # Total stretched length
 
-        T = T0 + np.sqrt(HF0**2 + VF0**2)
+        T = np.sqrt(HF0**2 + VF0**2)
 
         # Compute forces (TLP tendons behave like linear springs)
         HF = T * (XF / L_stretched)  # Horizontal force component
@@ -431,19 +431,30 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         VA = VF  # Vertical force at anchor
 
         # Define stiffness matrix (pure axial stiffness)
-        K_axial = EA / L  # Axial stiffness
-        K_horizontal = T0 / L  # Small horizontal stiffness
+        #K_v = EA / L  # Axial stiffness
+        #K_h = T / L  # Small horizontal stiffness
+
+        K_h = 0.5 * (T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L * (XF / L_stretched)**2)  # Axial stiffness
+        K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L * (ZF / L_stretched)**2)  # Small horizontal stiffness
 
         # Store results in info dictionary
         info["HF"] = HF  # Horizontal force
         info["VF"] = VF  # Vertical force
-        info["stiffnessB"]  = np.array([[ K_horizontal, 0.0], [0.0, K_axial]])  # Stiffness at fairlead
-        info["stiffnessA"]  = np.array([[ K_horizontal, 0.0], [0.0, K_axial]])  # Stiffness at anchor
-        info["stiffnessBA"] = np.array([[-K_horizontal, 0.0], [0.0, -K_axial]])  # Coupling stiffness
+        info["stiffnessB"]  = np.array([[ K_h, 0.0], [0.0, K_v]])  # Stiffness at fairlead
+        info["stiffnessA"]  = np.array([[ K_h, 0.0], [0.0, K_v]])  # Stiffness at anchor
+        info["stiffnessBA"] = np.array([[-K_h, 0.0], [0.0, -K_v]])  # Coupling stiffness
         info["LBot"] = 0.0  # No bottom contact
         info['ProfileType'] = 6
         info['Zextreme'] = 0  # No slack portion
 
+        print("Final Stiffness Matrices at Offset Position:")
+        print("K_A (Anchor Stiffness):\n", info["stiffnessA"])
+        print("K_B (Fairlead Stiffness):\n", info["stiffnessB"])
+        print("K_BA (Cross Coupling):\n", info["stiffnessBA"])
+
+        # Check for symmetry
+        print("Symmetry Check (K_A - K_A.T):\n", info["stiffnessA"] - info["stiffnessA"].T)
+        print("Symmetry Check (K_B - K_B.T):\n", info["stiffnessB"] - info["stiffnessB"].T)
         # Plotting (for debugging or visualization)
         if plots > 0:
             for I in range(nNodes):
@@ -1077,6 +1088,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
 
     # return horizontal and vertical (positive-up) tension components at each end, and length along seabed
     #print(info)
+    print("CATENARY RESULTS", FxA, FzA, FxB, FzB)
     return (FxA, FzA, FxB, FzB, info) 
 
 

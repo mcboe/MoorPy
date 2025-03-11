@@ -809,7 +809,7 @@ class Line():
             try:
                 print('pretension', self.sys.T0)
                 (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
-                     w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
+                     w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.sys.T0, Tol=tol, 
                      nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
                 #print(info)
             except CatenaryError as error:

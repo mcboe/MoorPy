@@ -30,7 +30,7 @@ from moorpy.helpers import (rotationMatrix, rotatePosition, getH, printVec,
 
 class System():
     '''A class for the whole mooring system'''
-    print("IK GEBRUIK DEZE DUS")
+    #print("IK GEBRUIK DEZE DUS")
     # >>> note: system module will need to import Line, Point, Body for its add/creation routines 
     #     (but line/point/body modules shouldn't import system) <<<
     
@@ -1481,6 +1481,7 @@ class System():
                 nCpldDOF += point.nDOF
                 DOFtypes += [-1]*point.nDOF
         
+        print("DOFTYPES", nDOF, nCpldDOF, DOFtypes)
         return nDOF, nCpldDOF, DOFtypes
     
     
@@ -2055,6 +2056,7 @@ class System():
             else:
                 K = self.getSystemStiffnessA(DOFtype=DOFtype) 
             
+            print('Solveequilibriuym', K)
             # adjust positions according to stiffness matrix to move toward net zero forces
                         
             '''
@@ -2825,6 +2827,7 @@ class System():
                 # get body's self-stiffness matrix (now only cross-coupling terms will be handled on a line-by-line basis)
                 K6 = body1.getStiffnessA(lines_only=lines_only)
                 K[i:i+body1.nDOF, i:i+body1.nDOF] += K6
+                print('Body1', K6)
                 
                 
                 # go through each attached point
@@ -2848,6 +2851,7 @@ class System():
                         
                         # look through Bodies further on in the list (coupling with earlier Bodies will already have been taken care of)
                         for body2 in self.bodyList[self.bodyList.index(body1)+1: ]:
+                            print("GA IK OOk DOOR BODY 2?")
                             if body2.type in d:
                                 
                                 # go through each attached Point
@@ -2879,13 +2883,14 @@ class System():
                         
                         # look through free Points
                         if endFound==0:                              #  if the end of this line hasn't already been found attached to a body
+                            print("GA IK OOk DOOR endfound?")
                             for point2 in self.pointList:
                                 if point2.type in d:                 # if it's a free point and
                                     if lineID in point2.attached:    # the line is also attached to it
                                         
                                         # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end                                          
                                         K63 = np.vstack([KB, np.matmul(H1.T, KB)])                                        
-                                        
+                                        print("K63", K63)
                                         # Trim for only enabled DOFs of the point and body
                                         K63 = K63[body1.DOFs,:][:,point2.DOFs]
                                         
@@ -2908,7 +2913,7 @@ class System():
                 n = point.nDOF
                 
                 # >>> TODO: handle case of free end point resting on seabed <<<
-                
+                print("DEZ POINT K PAK IK")
                 # get point's self-stiffness matrix
                 K1 = point.getStiffnessA(lines_only=lines_only)
                 K[i:i+n,i:i+n] += K1
@@ -2922,9 +2927,10 @@ class System():
                     for point2 in self.pointList[self.pointList.index(point)+1: ]:
                         if point2.type in d:
                             if lineID in point2.attached:  # if this point is at the other end of the line
-
+                                
                                 # get cross-coupling stiffness of line: force on end attached to point1 due to motion of other end
                                 if point.attachedEndB == 1:    
+                                    print("DEZ POINT K coupl PAK IK")
                                     KB = self.lineList[lineID-1].KBA
                                 else:
                                     KB = self.lineList[lineID-1].KBA.T
@@ -2939,6 +2945,7 @@ class System():
                                 
                 i += n
         
+        print("DDE originele K", K)
         return K
     
     
