@@ -210,6 +210,7 @@ class Point():
         # add forces from attached lines
         for LineID,endB in zip(self.attached,self.attachedEndB):
             # f += self.sys.lineList[LineID-1].getEndForce(endB)
+            print("LINEID", LineID)
             if endB:
                 f += self.sys.lineList[LineID-1].fB
             else:
@@ -332,9 +333,11 @@ class Point():
             if self.r[2] == -self.sys.depth:
                 K[2,2] += 1.0e12
         if sum(np.isnan(K).ravel()) > 0: breakpoint()
-        if xyz:                     # if asked to output all DOFs, do it
+        if xyz:
+            print("Deze K is input")                     # if asked to output all DOFs, do it
             return K
-        else:                       # otherwise only return rows/columns of active DOFs
+        else: 
+            print("Deze K is input")                      # otherwise only return rows/columns of active DOFs
             return K[:,self.DOFs][self.DOFs,:]
         
     

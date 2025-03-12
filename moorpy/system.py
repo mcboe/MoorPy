@@ -2837,7 +2837,6 @@ class System():
                     r1 = rotatePosition(rPointRel1, body1.r6[3:])   # relative position of Point about body ref point in unrotated reference frame  
                     H1 = getH(r1)                                   # produce alternator matrix of current point's relative position to current body
                   
-
                     for lineID in point1.attached:      # go through each attached line to the Point, looking for when its other end is attached to something that moves
 
                         endFound = 0                    # simple flag to indicate when the other end's attachment has been found
@@ -2873,7 +2872,7 @@ class System():
                                         
                                         K[i:i+body1.nDOF, j:j+body2.nDOF] += K66    # f on B1 due to x of B2
                                         K[j:j+body2.nDOF, i:i+body1.nDOF] += K66.T  # mirror
-                                        
+                                        print('Ik doe iet met K hiero in body2', K)
                                         # note: the additional rotational stiffness due to change in moment arm does not apply to this cross-coupling case
                                         endFound = 1  # signal that the line has been handled so we can move on to the next thing
                                         break  
@@ -2896,7 +2895,7 @@ class System():
                                         
                                         K[i:i+ body1.nDOF, j:j+point2.nDOF] += K63  # f on B1 due to x of P2
                                         K[j:j+point2.nDOF, i:i+ body1.nDOF] += K63.T    # mirror 
-                                        
+                                        print("GA IK OOk DOOR endfound en modigy ik K?")
                                         break
                                     
                                     j += point2.nDOF                  # if this point has DOFs we're considering, then count them
@@ -2945,7 +2944,7 @@ class System():
                                 
                 i += n
         
-        print("DDE originele K", K)
+        #print("DDE originele K", K)
         return K
     
     

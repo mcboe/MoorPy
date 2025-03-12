@@ -346,17 +346,23 @@ class Body():
         
         # stiffness contributions from attached points (and any of their attached lines)
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
-            
+            print('DITPUNT', PointID, rPointRel)
             r = rotatePosition(rPointRel, self.r6[3:])          # relative position of Point about body ref point in unrotated reference frame  
             f3 = self.sys.pointList[PointID-1].getForces()      # total force on point (for additional rotational stiffness term due to change in moment arm)
             K3 = self.sys.pointList[PointID-1].getStiffnessA()  # local 3D stiffness matrix of the point
+            print(r)
+            print(f3)
+            print('K3 hieroo', K3)
             
             # following are from functions translateMatrix3to6
             H = getH(r)
+            #print(H)
             K[:3,:3] += K3
-            K[:3,3:] += np.matmul(K3, H)                        # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end
+            #print('EERSTE', K)
+            K[:3,3:] += np.matmul(K3, H)     
+            #print('tweede', K)                   # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end
             K[3:,3:] += -np.matmul(getH(f3), H) - np.matmul(H, np.matmul(K3,H))   # updated 2023-05-02
-   
+            #print('derde', K) 
         K[3:,:3] = K[:3,3:].T                                   # copy over other off-diagonal sub-matrix
         
         
@@ -376,7 +382,8 @@ class Body():
             
             K[3:,3:] += Kw + Kb
             K[2 ,2 ] += Kwp
-            
+
+        print('DIT IS RETURN K', K)    
         # Return stiffness matrix
         if all_DOFs:
             return K

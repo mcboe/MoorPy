@@ -418,25 +418,48 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         # Compute axial elongation due to pretension
         #delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
         delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
+        #delta_L = np.sqrt(XF**2 + ZF**2)-L
         #print('VFO', VF0, HF0)
         L_stretched = L + delta_L  # Total stretched length
 
-        T = np.sqrt(HF0**2 + VF0**2)
+        #T = np.sqrt(HF0**2 + VF0**2)
 
         # Compute forces (TLP tendons behave like linear springs)
-        HF = T * (XF / L_stretched)  # Horizontal force component
-        VF = T * (ZF / L_stretched)  # Vertical force component
+        # HF = T * (XF / L_stretched)  # Horizontal force component
+        # VF = T * (ZF / L_stretched)  # Vertical force component
+        HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+        VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
 
         HA = HF  # Horizontal force at anchor
         VA = VF  # Vertical force at anchor
-
+        T = np.sqrt(HF**2+VF**2)
         # Define stiffness matrix (pure axial stiffness)
         #K_v = EA / L  # Axial stiffness
         #K_h = T / L  # Small horizontal stiffness
+        #print('LENGTHHH', L)
+        K_h = 0.5*(T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
+        K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
+        #print('ËAAAA', EA)
+        #Schreier test
+        # delta_L = np.sqrt(XF**2 + ZF**2)-L
 
-        K_h = 0.5 * (T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L * (XF / L_stretched)**2)  # Axial stiffness
-        K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L * (ZF / L_stretched)**2)  # Small horizontal stiffness
+        # L_stretched = L + delta_L
 
+        # print('data', T0, XF, delta_L, L, ZF)
+
+        # HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+        # VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+
+        # HA = HF
+        # VA = VF
+
+        # T = np.sqrt(HF**2 + VF**2)
+
+        # K_h = 0.5 * (T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L * (XF / L_stretched)**2)  # Axial stiffness
+        # K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L * (ZF / L_stretched)**2)  # Small horizontal stiffness
+        
+        #print(T0, K_h, K_v)
+        #print('COORDINATEB', XF, ZF)
         # Store results in info dictionary
         info["HF"] = HF  # Horizontal force
         info["VF"] = VF  # Vertical force
@@ -447,14 +470,14 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         info['ProfileType'] = 6
         info['Zextreme'] = 0  # No slack portion
 
-        print("Final Stiffness Matrices at Offset Position:")
-        print("K_A (Anchor Stiffness):\n", info["stiffnessA"])
-        print("K_B (Fairlead Stiffness):\n", info["stiffnessB"])
-        print("K_BA (Cross Coupling):\n", info["stiffnessBA"])
+        # print("Final Stiffness Matrices at Offset Position:")
+        # print("K_A (Anchor Stiffness):\n", info["stiffnessA"])
+        # print("K_B (Fairlead Stiffness):\n", info["stiffnessB"])
+        # print("K_BA (Cross Coupling):\n", info["stiffnessBA"])
 
         # Check for symmetry
-        print("Symmetry Check (K_A - K_A.T):\n", info["stiffnessA"] - info["stiffnessA"].T)
-        print("Symmetry Check (K_B - K_B.T):\n", info["stiffnessB"] - info["stiffnessB"].T)
+        #print("Symmetry Check (K_A - K_A.T):\n", info["stiffnessA"] - info["stiffnessA"].T)
+        #print("Symmetry Check (K_B - K_B.T):\n", info["stiffnessB"] - info["stiffnessB"].T)
         # Plotting (for debugging or visualization)
         if plots > 0:
             for I in range(nNodes):
@@ -1088,7 +1111,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
 
     # return horizontal and vertical (positive-up) tension components at each end, and length along seabed
     #print(info)
-    print("CATENARY RESULTS", FxA, FzA, FxB, FzB)
+    #print("CATENARY RESULTS", FxA, FzA, FxB, FzB)
     return (FxA, FzA, FxB, FzB, info) 
 
 

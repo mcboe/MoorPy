@@ -744,6 +744,7 @@ class Line():
         # ----- Perform rotation/transformation to 2D plane of catenary -----
         
         dr =  self.rB - self.rA
+        #print('DRRRRR', dr)
         
         # if a current force is present, include it in the catenary solution
         if np.sum(np.abs(self.fCurrent)) > 0:
@@ -776,9 +777,16 @@ class Line():
         # apply a rotation about Z' to align the line profile with the X'-Z' plane
         theta_z = -np.arctan2(dr[1], dr[0])
         R_z = rotationMatrix(0, 0, theta_z)
-        
+        # print("Transformatie waardes")
+        # print(theta_z)
+        # print(R_curr)
+        # print(R_z)
+        # print(dr)
+        # print(self.number, self.rA, self.rB)
         # overall rotation matrix (global to catenary plane)
-        R = np.matmul(R_z, R_curr)   
+        R = np.matmul(R_z, R_curr) 
+        R = np.where(np.abs(R) < 0.05, 0, R)  
+        
         
         # figure out slope in plane (only if contacting the seabed)
         if self.rA[2] <= -depthA or self.rB[2] <= -depthB:
@@ -807,7 +815,7 @@ class Line():
         #If EA is found in the line properties we will run the original catenary function 
         if 'EA' in self.type:
             try:
-                print('pretension', self.sys.T0)
+                #print('pretension', self.sys.T0)
                 (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
                      w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.sys.T0, Tol=tol, 
                      nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
@@ -840,7 +848,7 @@ class Line():
             self.Ys = Ys
             self.Zs = Zs
             self.Ts = info["Te"]
-        
+
         # save fairlead tension components for use as ICs next iteration
         self.HF = info["HF"]
         self.VF = info["VF"]
@@ -850,6 +858,7 @@ class Line():
         self.z_extreme = self.rA[2] + info["Zextreme"]
         self.info = info
         
+        #print('HIER BEN IK EN DIT IS R', R)
         # save forces in global reference frame
         self.fA = np.matmul(np.array([fAH, 0, fAV]), R)
         self.fB = np.matmul(np.array([fBH, 0, fBV]), R)
@@ -857,8 +866,9 @@ class Line():
         self.TB = np.linalg.norm(self.fB)
         
         # Compute transverse (out-of-plane) stiffness term
-        if LH < 0.01*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
-            Kt = 0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
+        if LH < 0.1*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
+            #print("ik gebruik deze kt")
+            Kt = 2*0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
         else:  # otherwise use the classic horizontal approach
             Kt = -fBH/LH
         
@@ -868,6 +878,7 @@ class Line():
         self.KB  = from2Dto3Drotated(info['stiffnessB'],  Kt, R.T)  # reaction at B due to motion of B
         self.KBA = from2Dto3Drotated(info['stiffnessBA'],-Kt, R.T)  # reaction at B due to motion of A
         
+        #print('DEZE KB PAKKEN ZWE', self.KB)
         
         # ----- calculate current loads if applicable, for use next time -----
         
