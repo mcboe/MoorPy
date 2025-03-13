@@ -1481,7 +1481,7 @@ class System():
                 nCpldDOF += point.nDOF
                 DOFtypes += [-1]*point.nDOF
         
-        print("DOFTYPES", nDOF, nCpldDOF, DOFtypes)
+        #print("DOFTYPES", nDOF, nCpldDOF, DOFtypes)
         return nDOF, nCpldDOF, DOFtypes
     
     
@@ -2944,7 +2944,7 @@ class System():
                                 
                 i += n
         
-        #print("DDE originele K", K)
+        print("DDE originele K", K)
         return K
     
     

@@ -868,7 +868,7 @@ class Line():
         # Compute transverse (out-of-plane) stiffness term
         if LH < 0.1*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
             #print("ik gebruik deze kt")
-            Kt = 2*0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
+            Kt = 0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
         else:  # otherwise use the classic horizontal approach
             Kt = -fBH/LH
         
