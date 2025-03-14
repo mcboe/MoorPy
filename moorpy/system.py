@@ -2827,7 +2827,7 @@ class System():
                 # get body's self-stiffness matrix (now only cross-coupling terms will be handled on a line-by-line basis)
                 K6 = body1.getStiffnessA(lines_only=lines_only)
                 K[i:i+body1.nDOF, i:i+body1.nDOF] += K6
-                print('Body1', K6)
+                #print('Body1', K6)
                 
                 
                 # go through each attached point
@@ -2882,14 +2882,14 @@ class System():
                         
                         # look through free Points
                         if endFound==0:                              #  if the end of this line hasn't already been found attached to a body
-                            print("GA IK OOk DOOR endfound?")
+                            #print("GA IK OOk DOOR endfound?")
                             for point2 in self.pointList:
                                 if point2.type in d:                 # if it's a free point and
                                     if lineID in point2.attached:    # the line is also attached to it
                                         
                                         # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end                                          
                                         K63 = np.vstack([KB, np.matmul(H1.T, KB)])                                        
-                                        print("K63", K63)
+                                        #print("K63", K63)
                                         # Trim for only enabled DOFs of the point and body
                                         K63 = K63[body1.DOFs,:][:,point2.DOFs]
                                         
@@ -2912,7 +2912,7 @@ class System():
                 n = point.nDOF
                 
                 # >>> TODO: handle case of free end point resting on seabed <<<
-                print("DEZ POINT K PAK IK")
+                #print("DEZ POINT K PAK IK")
                 # get point's self-stiffness matrix
                 K1 = point.getStiffnessA(lines_only=lines_only)
                 K[i:i+n,i:i+n] += K1
@@ -2944,7 +2944,7 @@ class System():
                                 
                 i += n
         
-        print("DDE originele K", K)
+        #print("DDE originele K", K)
         return K
     
     

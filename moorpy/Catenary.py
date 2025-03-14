@@ -496,7 +496,7 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         WEA     =  W *EA
         L_EA  =  L /EA
         CB_EA =  CB/EA
-        print('Deze gebruk ik wel')
+        #print('Deze gebruk ik wel')
         #MaxIter = 50 #int(1.0/Tol)   # Smaller tolerances may take more iterations, so choose a maximum inversely proportional to the tolerance
 
         # more initialization
