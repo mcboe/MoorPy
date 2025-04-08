@@ -510,10 +510,10 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
                 print(f"   dX_last was {dX_last}, dX was going to be {dX}, now it'll be {alpha*dX}")
             
             dX = alpha*dX  # scale down dX
-            
+        #print('MOORPY dx', dX)
         # also avoid extreme accelerations in the same direction        
-        for i in range(N):
-            
+        for i in range(6):
+            #print(tols)
             # should update the following for ytol >>>
             if abs(dX_last[i]) > tols[i]:                           # only worry about accelerations if the last step was non-negligible
         
@@ -540,7 +540,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         dXlist[iter,:] = dX
         #if iter==196:
             #breakpoint() 
-        
+        print('de volgende', dX)
         
         # add damping if cyclic behavior is detected at the halfway point
         if dodamping and iter == int(0.5*maxIter):
@@ -555,7 +555,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
                     break
                     
         dX = damper*dX
-            
+        print('damping', dX)
             
         # enforce bounds
         for i in range(N):
@@ -568,6 +568,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
 
         dXlist2[iter,:] = dX
         # check for convergence
+        #if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
         if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
         
             if display>0:
@@ -593,7 +594,10 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         
            
         X = X + dX
-         
+        #print('Moorpy final', X)
+        #print('Moorpyfinal', dX)
+    #print('Moorpy final', X)
+    #print('Moorpyfinal', dX)    
     # truncate empty parts of these arrays
     Xs      = Xs     [:iter+1]
     Es      = Es     [:iter+1]
