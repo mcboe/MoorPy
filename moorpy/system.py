@@ -2399,7 +2399,7 @@ class System():
     
     def getSystemStiffness(self, DOFtype="free", dx=0.1, dth=0.1, solveOption=1, lines_only=False, plots=0):
 
-        print('getSystemStiffness ben ik geweest')
+        #print('getSystemStiffness ben ik geweest')
         '''Calculates the stiffness matrix for all selected degrees of freedom of a mooring system 
         whether free, coupled, or both (other DOFs are considered fixed).
 
@@ -2538,7 +2538,7 @@ class System():
         
     
     def getCoupledStiffness(self, dx=0.1, dth=0.1, solveOption=1, lines_only=False, tensions=False, nTries=3, plots=0):
-        print('getCoupledStiffness ben ik geweest')
+        #print('getCoupledStiffness ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated. 
         
@@ -2698,7 +2698,7 @@ class System():
         
     
     def getCoupledStiffnessA(self, lines_only=False, tensions=False):
-        print('getCoupledStiffnessA ben ik geweest')
+        #print('getCoupledStiffnessA ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated - analytical appraoch. 
         
@@ -2761,7 +2761,7 @@ class System():
     
     
     def getSystemStiffnessA(self, DOFtype="free", lines_only=False, rho=1025, g=9.81):
-        print('getSystemStiffnessA ben ik geweest')
+        #print('getSystemStiffnessA ben ik geweest')
         '''A method to calculate the system's stiffness matrix based entirely on analytic gradients from catenary
 
         Parameters
