@@ -862,7 +862,7 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
 
         dXlist2[iter,:] = dX
         # check for convergence
-        ytol = Y[-6]*0.01
+        ytol = Y[-6]*0.0001
         #if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
         if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and (np.abs(err[0]) < ytol)):
         
