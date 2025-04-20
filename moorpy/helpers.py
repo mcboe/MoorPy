@@ -447,6 +447,21 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         # call evaluation function
         Y, oths, stop = eval_func(X, args)
         
+        ytol = [0,0]
+        ytol = [10000,10000,100000,1000000,1000000,1000000]
+        # check for convergece
+        if Y[0] > 0:
+            #ytol = abs(Y*0.1)
+
+            for i in range(len(ytol)):
+                if ytol[i] == 0:
+                    ytol[i] = 1
+
+        Ytarget[0:6] = [0,0,0,0,0,0]
+        #Ytarget[2] = -Y[2] + Y[-4]
+
+        print('forcescheck',Ytarget )
+        print('forcescheck',Y)
         # compute error
         err = Y - Ytarget
         
@@ -491,7 +506,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         
 
         #if display>2:
-        #    breakpoint()
+           #breakpoint()
 
         # Make sure we're not diverging by keeping things from reversing too much.
         # Track the previous step (dX_last) and if the current step reverses too much, stop it part way.
@@ -520,7 +535,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
                 dX_max = a_max*dX_last[i]                           # set the maximum permissible dx in each direction based an an acceleration limit
                 
                 if dX_max == 0.0:                                   # avoid a divide-by-zero case (if dX[i] was zero to start with)
-                    breakpoint()
+                    #breakpoint()
                     dX[i] = 0.0                     
                 else:    
                     a_i = dX[i]/dX_max                              # calculate ratio of desired dx to max dx
@@ -553,23 +568,28 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
                     print(f"last similar point was at iteration {iterc}")
                     damper = damper * 0.9
                     break
-                    
-        dX = damper*dX
-        #print('damping', dX)
+        #damper = 0.6      
+        #dX = damper*dX
+        # #print('damping', dX)
             
-        # enforce bounds
-        for i in range(N):
+        # # enforce bounds
+        # for i in range(N):
             
-            if X[i] + dX[i] < Xmin[i]:
-                dX[i] = Xmin[i] - X[i]
+        #     if X[i] + dX[i] < Xmin[i]:
+        #         dX[i] = Xmin[i] - X[i]
                 
-            elif X[i] + dX[i] > Xmax[i]:
-                dX[i] = Xmax[i] - X[i]
+        #     elif X[i] + dX[i] > Xmax[i]:
+        #         dX[i] = Xmax[i] - X[i]
 
-        dXlist2[iter,:] = dX
+        # dXlist2[iter,:] = dX
         # check for convergence
         #if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
-        if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
+        print('ytol', ytol)
+        print(dX)
+
+        #dxrel = np.abs(((dX-dX_last)))    
+        #print('dxrel', dxrel)
+        if (ytol[0]==0 and all(np.abs(dX) < tols)) or (ytol[0] > 0 and all(np.abs(err) < ytol)):
         
             if display>0:
                 print("Iteration converged after "+str(iter)+" iterations with error of "+str(err)+" and dX of "+str(dX))
@@ -590,7 +610,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
                 
             break
 
-        dX_last = 1.0*dX # remember this current value
+         # remember this current value
         
         # if len(X) >= 7:
         #     X[0:6] = X[0:6] + dX[0:6]
@@ -604,6 +624,21 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         #         r6trans = np.concatenate((position_translated, r6[3:]))
         #         X[(i+1)*6:(i+1)*6+6] = X[0:6] + dX[(i+1)*6:(i+1)*6+6]
         
+        # if iter == 0:
+        #     X = X + dX
+        
+        # else:
+        #     for i in range(len(dX)):
+
+        #         if (dX[i]-dX_last[i])/dX_last[i] <= 0.1:
+        #             X[i] = X[i]
+        #         else:
+        #             X[i] = X[i] + dX[i]
+        #     print('Resultss', X)
+        #     print(dX)
+        dX_last = 1.0*dX
+        #damper = 0.4        
+        #dX = damper*dX
         X = X + dX
         #print('Moorpy final', X)
         #print('Moorpyfinal', dX)
@@ -618,7 +653,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
     return X, Y, dict(iter=iter, err=err, dX=dX_last, oths=oths, Xs=Xs, Es=Es, success=success, dXlist=dXlist, dXlist2=dXlist2)
 
 def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol=0, maxIter=20, 
-           Xmin=[], Xmax=[], a_max=2.0, dX_last=[], stepfac=4, display=0, dodamping=False):
+           Xmin=[], Xmax=[], a_max=2.0, dX_last=[], stepfac=4, display=2, dodamping=False):
     '''
     PARAMETERS
     ----------    
@@ -739,10 +774,23 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
         # call evaluation function
         Y, oths, stop = eval_func(X, args)
 
-        Ytarget[0] = -Y[-6]
+        ytol = [0,0,0,0,0,0]
+        # check for convergence
+        # if Y[-6] > 0:
+        #     ytol = abs(Y[-6:]*0.1)
+
+        Ytarget[0:6] = -Y[-6:]
+        #Ytarget[2] = Y[2] - Y[-4]
+        
         
         # compute error
         err = Y - Ytarget
+        
+
+        print('forcecheck', Y)
+        print('forcecheck', Ytarget)
+        #print(Y)
+        #print('Targettsss',Ytarget)
         
         if display==2:
             print(f"  new iteration #{iter} with RMS error {np.linalg.norm(err):8.3e}")
@@ -783,7 +831,13 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
         else: 
             dX = step_func(X, args, Y, oths, Ytarget, err, tols, iter, maxIter)
         
+        # if iter>0:
+        #     if abs(err[2]) >= abs(ytol[2]):
+        #         dX[2::6] = 70*dX[2::6]
+        #         print('hier', dX)
 
+        
+        #print('OVERLEEF IK EERSTE LOOP?')
         #if display>2:
         #    breakpoint()
 
@@ -792,79 +846,83 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
         # Stop it at a plane part way between the current X value and the previous X value (using golden ratio, why not).  
         
         # get the point along the previous step vector where we'll draw the bounding hyperplane (could be a line, plane, or more in higher dimensions)
-        Xlim = X - 0.62*dX_last
+        # Xlim = X - 0.62*dX_last
         
-        # the equation for the plane we don't want to recross is then sum(X*dX_last) = sum(Xlim*dX_last)
-        if np.sum((X+dX)*dX_last) < np.sum(Xlim*dX_last):         # if we cross are going to cross it
+        # # the equation for the plane we don't want to recross is then sum(X*dX_last) = sum(Xlim*dX_last)
+        # if np.sum((X+dX)*dX_last) < np.sum(Xlim*dX_last):         # if we cross are going to cross it
             
-            alpha = np.sum((Xlim-X)*dX_last)/np.sum(dX*dX_last)    # this is how much we need to scale down dX to land on it rather than cross it
+        #     alpha = np.sum((Xlim-X)*dX_last)/np.sum(dX*dX_last)    # this is how much we need to scale down dX to land on it rather than cross it
                
-            if display > 2:
-                print("  limiting oscillation with alpha="+str(alpha))
-                print(f"   dX_last was {dX_last}, dX was going to be {dX}, now it'll be {alpha*dX}")
+        #     if display > 2:
+        #         print("  limiting oscillation with alpha="+str(alpha))
+        #         print(f"   dX_last was {dX_last}, dX was going to be {dX}, now it'll be {alpha*dX}")
             
-            dX = alpha*dX  # scale down dX
-        #print('MOORPY dx', dX)
-        # also avoid extreme accelerations in the same direction        
-        for i in range(6):
-            #print(tols)
-            # should update the following for ytol >>>
-            if abs(dX_last[i]) > tols[i]:                           # only worry about accelerations if the last step was non-negligible
+        #     dX = alpha*dX  # scale down dX
+        # #print('MOORPY dx', dX)
+        # # also avoid extreme accelerations in the same direction        
+        # for i in range(6):
+        #     #print(tols)
+        #     # should update the following for ytol >>>
+        #     if abs(dX_last[i]) > tols[i]:                           # only worry about accelerations if the last step was non-negligible
         
-                dX_max = a_max*dX_last[i]                           # set the maximum permissible dx in each direction based an an acceleration limit
+        #         dX_max = a_max*dX_last[i]                           # set the maximum permissible dx in each direction based an an acceleration limit
                 
-                if dX_max == 0.0:                                   # avoid a divide-by-zero case (if dX[i] was zero to start with)
-                    breakpoint()
-                    dX[i] = 0.0                     
-                else:    
-                    a_i = dX[i]/dX_max                              # calculate ratio of desired dx to max dx
+        #         if dX_max == 0.0:                                   # avoid a divide-by-zero case (if dX[i] was zero to start with)
+        #             breakpoint()
+        #             dX[i] = 0.0                     
+        #         else:    
+        #             a_i = dX[i]/dX_max                              # calculate ratio of desired dx to max dx
               
-                    if a_i > 1.0:
+        #             if a_i > 1.0:
                     
-                        if display > 2:
-                            print(f"    limiting acceleration ({1.0/a_i:6.4f}) for axis {i}")
-                            print(f"     dX_last was {dX_last}, dX was going to be {dX}")
+        #                 if display > 2:
+        #                     print(f"    limiting acceleration ({1.0/a_i:6.4f}) for axis {i}")
+        #                     print(f"     dX_last was {dX_last}, dX was going to be {dX}")
                         
-                        #dX = dX*a_max/a_i  # scale it down to the maximum value
-                        dX[i] = dX[i]/a_i  # scale it down to the maximum value (treat each DOF individually)
+        #                 #dX = dX*a_max/a_i  # scale it down to the maximum value
+        #                 dX[i] = dX[i]/a_i  # scale it down to the maximum value (treat each DOF individually)
                         
-                        if display > 2:
-                            print(f"     now dX will be {dX}")
+        #                 if display > 2:
+        #                     print(f"     now dX will be {dX}")
         
-        dXlist[iter,:] = dX
-        #if iter==196:
-            #breakpoint() 
-        #print('de volgende', dX)
+        # dXlist[iter,:] = dX
+        # #if iter==196:
+        #     #breakpoint() 
+        # #print('de volgende', dX)
         
-        # add damping if cyclic behavior is detected at the halfway point
-        if dodamping and iter == int(0.5*maxIter):
-            if display > 2:   print(f"dsolve2 is at iteration {iter} (50% of maxIter)")
+        # # add damping if cyclic behavior is detected at the halfway point
+        # if dodamping and iter == int(0.5*maxIter):
+        #     if display > 2:   print(f"dsolve2 is at iteration {iter} (50% of maxIter)")
                     
-            for j in range(2,iter-1):
-                iterc = iter - j
-                if all(np.abs(X - Xs[iterc,:]) < tols):
-                    print(f"dsolve2 is going in circles detected at iteration {iter}")
-                    print(f"last similar point was at iteration {iterc}")
-                    damper = damper * 0.9
-                    break
-                    
-        dX = damper*dX
-        #print('damping', dX)
+        #     for j in range(2,iter-1):
+        #         iterc = iter - j
+        #         if all(np.abs(X - Xs[iterc,:]) < tols):
+        #             print(f"dsolve2 is going in circles detected at iteration {iter}")
+        #             print(f"last similar point was at iteration {iterc}")
+        #             damper = damper * 0.9
+        #             break
+        # damper = 1
+        # dX = damper*dX
+        # #print('damping', dX)
             
-        # enforce bounds
-        for i in range(N):
+        # # enforce bounds
+        # for i in range(N):
             
-            if X[i] + dX[i] < Xmin[i]:
-                dX[i] = Xmin[i] - X[i]
+        #     if X[i] + dX[i] < Xmin[i]:
+        #         dX[i] = Xmin[i] - X[i]
                 
-            elif X[i] + dX[i] > Xmax[i]:
-                dX[i] = Xmax[i] - X[i]
+        #     elif X[i] + dX[i] > Xmax[i]:
+        #         dX[i] = Xmax[i] - X[i]
 
-        dXlist2[iter,:] = dX
-        # check for convergence
-        ytol = Y[-6]*0.0001
+        # dXlist2[iter,:] = dX
+        
+        # print('ytol', ytol)
+        # for i in range(len(ytol)):
+        #     if ytol[i] == 0:
+        #         ytol[i] = 1
+        # print(err)
         #if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
-        if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and (np.abs(err[0]) < ytol)):
+        if (ytol[0]==0 and all(np.abs(dX) < tols)) or (ytol[0] > 0 and all(np.abs(err[0:3]) < ytol[0:3])):
         
             if display>0:
                 print("Iteration converged after "+str(iter)+" iterations with error of "+str(err)+" and dX of "+str(dX))
@@ -883,13 +941,13 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
             else:
                 success = True
                 
-            break
+            #break
 
-        dX_last = 1.0*dX # remember this current value
+        #dX_last = 1.0*dX # remember this current value
         
-        if len(X) >= 7:
+        if len(dX) >= 7:
             X[0:6] = X[0:6] + dX[0:6]
-            for i in range(len(X)//6 - 1):
+            for i in range(len(dX)//6 - 1):
                 #Rmat = rotationMatrix(*X[3:6])
                 #position_translated = X[0:3] + Rmat @ (np.array([0,0,heightlist[i]-15])) - (np.array([0,0,heightlist[i]-15]))
                 #print(dX)
@@ -912,8 +970,58 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
                 #Construct new r6 with updated position but same orientation
                 r6trans = np.concatenate((position_translated, X[3:6]))
                 X[(i+1)*6:(i+1)*6+6] = r6trans + dX[(i+1)*6:(i+1)*6+6]
-        else:
-            X = X + dX
+                print('IKCALCULATEDEXDUSHIERO')
+        # else:
+        #if 
+        #for i in range(len(dX)):
+        #   if abs(dX[i]) < tols[i]:
+        #       dX[i] = 0.0
+
+        #if iter == 0:
+        #X = X + dX
+        
+        # else:
+        #     if np.abs(err[0]) <= ytol[0]:
+        #         X[0::6] = X[0::6]
+        #         X[4::6] = X[4::6]
+        #     else:
+        #         X[0::6] = X[0::6] + dX[0::6]
+        #         X[4::6] = X[4::6] + dX[4::6]
+
+        #     if np.abs(err[1]) <= ytol[1]:
+ 
+        #         X[1::6] = X[1::6]
+        #         X[3::6] = X[3::6]
+        #     else:
+        #         X[1::6] = X[1::6] + dX[1::6]
+        #         X[3::6] = X[3::6] + dX[3::6]
+
+        #     if np.abs(err[2]) <= ytol[2]:
+        #         X[2::6] = X[2::6]
+        #     else:
+        #         X[2::6] = X[2::6] + dX[2::6]
+            
+        #     if np.abs(err[5]) <= ytol[5]:
+        #         X[5::6] = X[5::6]
+        #     else:
+        #         X[5::6] = X[5::6] + dX[5::6]
+
+        # # else:
+        # #     for i in range(len(dX)):
+
+        # #         if (dX[i]-dX_last[i])/dX_last[i] <= 0.1:
+        # #             X[i] = X[i]
+        # #         else:
+        # #             X[i] = X[i] + dX[i]
+        # #     print('Resultss', X)
+        # #     print(dX)
+        dX_last = 1.0*dX
+        # #print('Resultss', X)
+        # print('Resultss', dX)
+        #print(err)
+        #X = X + dX
+        if success == True:
+            break
         #print('Moorpy final', X)
         #print('Moorpyfinal', dX)
     #print('Moorpy final', X)

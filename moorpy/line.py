@@ -43,6 +43,7 @@ class Line():
         
         self.number = num
         self.isRod = isRod
+        self.T0store = 0
             
         self.L = L              # line unstretched length (may be modified if using nonlinear elasticity) [m]
         self.L0 = L             # line reference unstretched length [m]
@@ -66,7 +67,7 @@ class Line():
         self.KBA= np.zeros([3,3])  # 3D stiffness matrix of cross coupling between ends
         
         self.HF = 0           # fairlead horizontal force saved for next solve
-        self.VF = 0           # fairlead vertical force saved for next solve
+        self.VF = self.sys.T0          # fairlead vertical force saved for next solve
         self.info = {}        # to hold all info provided by catenary
         
         self.qs = 1  # flag indicating quasi-static analysis (1). Set to 0 for time series data
@@ -715,11 +716,12 @@ class Line():
         '''
 
         # deal with horizontal tension starting point
-        if self.HF < 0:
-            raise LineError("Line HF cannot be negative") # this could be a ValueError too...
+        #if self.HF < 0:
+        #    raise LineError("Line HF cannot be negative") # this could be a ValueError too...
             
         if reset==True:   # Indicates not to use previous fairlead force values to start catenary 
             self.HF = 0   # iteration with, and insteady use the default values.
+            self.VF = 0
         
         
         # ensure line profile information is computed if needed for computing current loads
@@ -784,6 +786,7 @@ class Line():
         # print(dr)
         # print(self.number, self.rA, self.rB)
         # overall rotation matrix (global to catenary plane)
+        
         R = np.matmul(R_z, R_curr) 
         R = np.where(np.abs(R) < 0.05, 0, R)  
         
@@ -816,9 +819,15 @@ class Line():
         if 'EA' in self.type:
             try:
                 #print('pretension', self.sys.T0)
-                (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
-                     w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.sys.T0, Tol=tol, 
-                     nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
+                #print(self.VF)
+                if self.T0store == 0:
+                    (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
+                        w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
+                        nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
+                else:
+                    (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
+                        w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
+                        nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
                 #print(info)
             except CatenaryError as error:
                 raise LineError(self.number, error.message)       
@@ -826,7 +835,7 @@ class Line():
         else:
             (fAH, fAV, fBH, fBV, info) = nonlinear(LH, LV, self.L, self.type['Str'], self.type['Ten'],np.linalg.norm(w)) 
     
-    
+        
         # save line profile coordinates in global frame (involves inverse rotation)
         if profiles > 0:
             # note: instantiating new arrays rather than writing directly to self.Xs 
@@ -848,7 +857,9 @@ class Line():
             self.Ys = Ys
             self.Zs = Zs
             self.Ts = info["Te"]
-
+        self.T0store = self.Ts[0]
+        print('self.T0store', self.T0store)
+        
         # save fairlead tension components for use as ICs next iteration
         self.HF = info["HF"]
         self.VF = info["VF"]
@@ -862,6 +873,7 @@ class Line():
         # save forces in global reference frame
         self.fA = np.matmul(np.array([fAH, 0, fAV]), R)
         self.fB = np.matmul(np.array([fBH, 0, fBV]), R)
+        #print('FBBB', self.fB)
         self.TA = np.linalg.norm(self.fA) # end tensions
         self.TB = np.linalg.norm(self.fB)
         

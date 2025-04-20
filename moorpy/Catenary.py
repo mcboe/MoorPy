@@ -7,7 +7,6 @@ from matplotlib import cm
 from moorpy.helpers import CatenaryError, dsolve2
 
 
-
 def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001, 
              nNodes=20, MaxIter=100, plots=0, depth=0, T0=0):
     
@@ -414,10 +413,33 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         # ProfileType 6 case - Tension Leg Platform (TLP) Tendon (Vertical Line, No Seabed Contact)
     elif (ZF > 0):  
         ProfileType = 6  # Identifies this as a TLP mooring case
-
+        
         # Compute axial elongation due to pretension
         #delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
-        delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
+        L = 75
+        # if HF0 == 0:
+        #     #delta_L = (np.sqrt(HF0**2 + T0**2)-T0)/(EA/L)
+        #     delta_L = np.sqrt(XF**2 + ZF**2)-75
+        #     if delta_L >= 0:
+        #         HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+        #         VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+        #     else:
+        #         HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+        #         VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+
+        # else:
+        L = 75
+        T = np.sqrt(HF0**2+VF0**2)
+        #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
+        delta_L = np.sqrt(XF**2 + ZF**2)-75
+        if delta_L >= 0:
+            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+        else:
+            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+
+        
         #delta_L = np.sqrt(XF**2 + ZF**2)-L
         #print('VFO', VF0, HF0)
         L_stretched = L + delta_L  # Total stretched length
@@ -427,18 +449,21 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         # Compute forces (TLP tendons behave like linear springs)
         # HF = T * (XF / L_stretched)  # Horizontal force component
         # VF = T * (ZF / L_stretched)  # Vertical force component
-        HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
-        VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+        #HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+        #VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
 
         HA = HF  # Horizontal force at anchor
         VA = VF  # Vertical force at anchor
         T = np.sqrt(HF**2+VF**2)
+        print('TENSIONSS', T)
+        print('Forcess', HF, VF, HF0, VF0, XF, ZF, delta_L)
+        
         # Define stiffness matrix (pure axial stiffness)
         #K_v = EA / L  # Axial stiffness
         #K_h = T / L  # Small horizontal stiffness
         #print('LENGTHHH', L)
-        K_h = 0.5*(T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
-        K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
+        K_h = 0.5*(T0/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
+        K_v = (T0/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
         #print('ËAAAA', EA)
         #Schreier test
         # delta_L = np.sqrt(XF**2 + ZF**2)-L
@@ -484,7 +509,8 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
                 Lms = L - s[I]  # Distance from end B
                 Xs[I] = XF * (s[I] / L)  # Approximate horizontal position
                 Zs[I] = ZF - Lms * (1 + delta_L / L)  # Stretched vertical position
-                Te[I] = T0  # Constant pretension throughout the tendon            
+                
+                Te[I] = np.sqrt(HF**2+VF**2)  # Constant pretension throughout the tendon            
         #print('PROFILE TYPE IS', ProfileType)
                 
         
@@ -1038,7 +1064,8 @@ def catenary(XF, ZF, L, EA, W, CB=0, alpha=0, HF0=0, VF0=0, Tol=0.000001,
         info["X" ] = Xs
         info["Z" ] = Zs
         info["s" ] = s
-        info["Te"] = Te                                
+        info["Te"] = Te 
+        #print('info["Te"]' ,Te)                               
     
 
     if plots==2 or info['error']==True: # also show the profile plot

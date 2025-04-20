@@ -134,7 +134,7 @@ class Point():
         None.
 
         '''
-        
+        #print('rinputt', r)
         # update the position of the Point itself
         if len(r) == 3:   # original case, setting all three coordinates as normal, asuming x,y,z
             self.r = np.array(r)
@@ -151,6 +151,7 @@ class Point():
         
         # update the position of any attached Line ends
         for LineID,endB in zip(self.attached,self.attachedEndB):
+            print('setline',LineID,endB)
             self.sys.lineList[LineID-1].setEndPosition(self.r, endB)
             
         if len(self.r) < 3:
@@ -213,8 +214,10 @@ class Point():
             #print("LINEID", LineID)
             if endB:
                 f += self.sys.lineList[LineID-1].fB
+                #print('fffff',f)
             else:
                 f += self.sys.lineList[LineID-1].fA
+                #print('fffff',f)
         
         if xyz:
             return f

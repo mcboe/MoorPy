@@ -1700,6 +1700,7 @@ class System():
             types = [0]
             f = np.zeros(nDOF)
         elif DOFtype == "coupled":
+            print('IK BEN COUPLED')
             types = [-1]
             f = np.zeros(nCpldDOF)
         elif DOFtype == "both":
@@ -1714,6 +1715,7 @@ class System():
         for body in self.bodyList:
                 if body.type in types:
                     f[i:i+body.nDOF] = body.getForces(lines_only=lines_only)
+                    print('Body loads', f)
                     i += body.nDOF
                     
         # gather net loads from points
@@ -1721,6 +1723,7 @@ class System():
             if point.type in types:
                 f[i:i+point.nDOF] = point.getForces(lines_only=lines_only)        # note: only including active DOFs of the point (may be less than all 3)
                 i += point.nDOF
+                print('point loads', f)
         
         return np.array(f)   
         

@@ -186,7 +186,8 @@ class Body():
         
         # update the position of any attached Points
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
-            rPoint = np.matmul(self.R, rPointRel) + self.r6[:3]  # rPoint = transformPosition(rPointRel, r6)            
+            rPoint = np.matmul(self.R, rPointRel) + self.r6[:3]  # rPoint = transformPosition(rPointRel, r6)   
+            print('updatepoint', rPoint)         
             self.sys.pointList[PointID-1].setPosition(rPoint)
             
         # update the position of any attached Rods        
@@ -221,6 +222,7 @@ class Body():
         '''
     
         f6 = np.zeros(6)
+        #print('dezegetforces??')
     
         # TODO: could save time in below by storing the body's rotation matrix when it's position is set rather than 
         #       recalculating it in each of the following function calls.
@@ -246,9 +248,10 @@ class Body():
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
         
             fPoint = self.sys.pointList[PointID-1].getForces(lines_only=lines_only) # get net force on attached Point
+            print('FPOIN', fPoint)
             rPoint_rotated = rotatePosition(rPointRel, self.r6[3:])                 # relative position of Point about body ref point in unrotated reference frame  
             f6 += translateForce3to6DOF(rPoint_rotated, fPoint)                     # add net force and moment resulting from its position to the Body
-            
+            #print(f6)
             
         # All forces and moments on the body should now be summed, and are in global/unrotated orientations.
         '''
