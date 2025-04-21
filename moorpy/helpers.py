@@ -608,7 +608,7 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
             else:
                 success = True
                 
-            break
+            #break
 
          # remember this current value
         
@@ -640,6 +640,8 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         #damper = 0.4        
         #dX = damper*dX
         X = X + dX
+        if success == True:
+            break
         #print('Moorpy final', X)
         #print('Moorpyfinal', dX)
     #print('Moorpy final', X)
