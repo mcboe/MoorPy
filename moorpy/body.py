@@ -186,6 +186,7 @@ class Body():
         
         # update the position of any attached Points
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
+            print(self.r6)
             rPoint = np.matmul(self.R, rPointRel) + self.r6[:3]  # rPoint = transformPosition(rPointRel, r6)   
             print('updatepoint', rPoint)         
             self.sys.pointList[PointID-1].setPosition(rPoint)
@@ -251,7 +252,7 @@ class Body():
             print('FPOIN', fPoint)
             rPoint_rotated = rotatePosition(rPointRel, self.r6[3:])                 # relative position of Point about body ref point in unrotated reference frame  
             f6 += translateForce3to6DOF(rPoint_rotated, fPoint)                     # add net force and moment resulting from its position to the Body
-            #print(f6)
+            print('fairlead location', rPoint_rotated)
             
         # All forces and moments on the body should now be summed, and are in global/unrotated orientations.
         '''
@@ -352,10 +353,13 @@ class Body():
             #print('DITPUNT', PointID, rPointRel)
             r = rotatePosition(rPointRel, self.r6[3:])          # relative position of Point about body ref point in unrotated reference frame  
             f3 = self.sys.pointList[PointID-1].getForces()      # total force on point (for additional rotational stiffness term due to change in moment arm)
-            K3 = self.sys.pointList[PointID-1].getStiffnessA()  # local 3D stiffness matrix of the point
-            #print(r)
+            K3 = self.sys.pointList[PointID-1].getStiffnessA()[0]  # local 3D stiffness matrix of the point
+            K31 = self.sys.pointList[PointID-1].getStiffnessA()[1]
+            K32 = self.sys.pointList[PointID-1].getStiffnessA()[2]
+            K36 = self.sys.pointList[PointID-1].getStiffnessA()[3]
+            print(r, rPointRel, self.r6)
             #print(f3)
-            #print('K3 hieroo', K3)
+            print('K3 hieroo', K31)
             
             # following are from functions translateMatrix3to6
             H = getH(r)
@@ -364,9 +368,17 @@ class Body():
             #print('EERSTE', K)
             K[:3,3:] += np.matmul(K3, H)     
             #print('tweede', K)                   # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end
+            K[2,0] += K31
+            K[2,1] += K32
+            #K[2,5] += K36
             K[3:,3:] += -np.matmul(getH(f3), H) - np.matmul(H, np.matmul(K3,H))   # updated 2023-05-02
+            
             #print('derde', K) 
         K[3:,:3] = K[:3,3:].T                                   # copy over other off-diagonal sub-matrix
+        #K[0,4] = 0
+        #K[1,3] = 0
+        #print('K6!!!', K6)
+        #K6[2,4] = line.K31
         
         
         # body's own stiffness components

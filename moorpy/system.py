@@ -104,7 +104,7 @@ class System():
         self.nCpldDOF = 0   # number of (coupled) degrees of freedom of the mooring system (needs to be set elsewhere)        
         self.cpldDOFs = []  # array of the values of the coupled DOFs of the system at different instants (2D list)
         
-        self.display = 0    # a flag that controls how much printing occurs in methods within the System (Set manually. Values > 0 cause increasing output.)
+        self.display = 2    # a flag that controls how much printing occurs in methods within the System (Set manually. Values > 0 cause increasing output.)
         
         self.MDoptions = {} # dictionary that can hold any MoorDyn options read in from an input file, so they can be saved in a new MD file if need be
 
@@ -1955,7 +1955,7 @@ class System():
         self.solveEquilibrium(DOFtype=DOFtype, plots=plots, tol=tol, rmsTol=rmsTol, maxIter=maxIter, display=display, no_fail=no_fail, finite_difference=finite_difference)
         
         
-    def solveEquilibrium(self, DOFtype="free", plots=0, tol=0.05, rmsTol=0.0, maxIter=500, display=0, no_fail=False, finite_difference=False):
+    def solveEquilibrium(self, DOFtype="free", plots=0, tol=0.05, rmsTol=0.0, maxIter=500, display=2, no_fail=False, finite_difference=False):
         '''Solves for the static equilibrium of the system using the dsolve function approach in MoorSolve
 
         Parameters
@@ -2463,7 +2463,10 @@ class System():
             for i in range(n):                                # loop through each DOF
                 
                 X2 = np.array(X1, dtype=float)  
-                X2[i] += dX[i]                                # perturb positions by dx in each DOF in turn            
+                X2[i] += dX[i]
+                if i == 0:
+                    X2[2] = np.sqrt(75**2 - X2[0]**2)-75
+                                                    # perturb positions by dx in each DOF in turn            
                 F2p = self.mooringEq(X2, DOFtype=DOFtype, lines_only=lines_only, tol=lineTol)     # system net force/moment vector from positive perturbation
                 
                 if self.display > 2:
@@ -2488,6 +2491,7 @@ class System():
                     X2 = np.array(X1, dtype=float)  
                     X2[i] += dXi                               # perturb positions by dx in each DOF in turn            
                     F2p = self.mooringEq(X2, DOFtype=DOFtype, lines_only=lines_only, tol=lineTol)  # system net force/moment vector from positive perturbation
+                    
                     if self.display > 2: 
                         printVec(self.pointList[0].r)
                         printVec(self.lineList[0].rB)
@@ -2540,7 +2544,7 @@ class System():
         return K
         
     
-    def getCoupledStiffness(self, dx=0.1, dth=0.1, solveOption=1, lines_only=False, tensions=False, nTries=3, plots=0):
+    def getCoupledStiffness(self, dx=0.01, dth=0.01, solveOption=0, lines_only=False, tensions=False, nTries=3, plots=0):
         #print('getCoupledStiffness ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated. 
@@ -2571,6 +2575,7 @@ class System():
             nCpldDOF x nCpldDOF stiffness matrix of the system
 
         '''
+        self.display = 3
         self.nDOF, self.nCpldDOF, _ = self.getDOFs()
         
         if self.display > 2:
@@ -2604,11 +2609,16 @@ class System():
             for i in range(self.nCpldDOF):                    # loop through each DOF
                 
                 X2 = np.array(X1, dtype=float)  
-                X2[i] += dX[i]                                # perturb positions by dx in each DOF in turn            
+                X2[i] += dX[i]                                # perturb positions by dx in each DOF in turn  
+                #if i == 0:
+                #    X2[2] = np.sqrt(75**2 - X2[0]**2)-75          
                 self.setPositions(X2, DOFtype="coupled")      # set the perturbed coupled DOFs
                 self.solveEquilibrium()                       # let the system settle into equilibrium  (note that this might prompt a warning if there are no free DOFs)
                 F2p = self.getForces(DOFtype="coupled", lines_only=lines_only)  # get resulting coupled DOF net force/moment response
-                if tensions:  T2p = self.getTensions()
+                print('F2p',F2p)
+                if tensions:
+                    T2p = self.getTensions()
+                    print('T2p',T2p)
                 
                 if self.display > 2:
                     print(F2p)
@@ -2616,7 +2626,10 @@ class System():
                     self.cpldDOFs.append(X2)
                 
                 K[:,i] = -(F2p-F1)/dX[i]                # take finite difference of force w.r.t perturbation
-                if tensions:  J[:,i] = (T2p-T1)/dX[i]
+                print('K[:,i]',K[:,i])
+                if tensions:
+                    J[:,i] = (T2p-T1)/dX[i]
+                    print('J[:,i]',J[:,i])
             
         elif solveOption==1:  # ::: adaptive central difference approach :::
         
@@ -2636,8 +2649,10 @@ class System():
                     #print(f'solving equilibrium {i+1}+_{self.nCpldDOF}')
                     self.solveEquilibrium(tol=eqTol)                       # let the system settle into equilibrium 
                     F2p = self.getForces(DOFtype="coupled", lines_only=lines_only)  # get resulting coupled DOF net force/moment response
-                    if tensions:  T2p = self.getTensions()
-                    
+                    print('F2p',F2p)
+                    if tensions:  
+                        T2p = self.getTensions()
+                        print('T2p',T2p)
                     if plots > 0:
                         self.cpldDOFs.append(X2.copy())
                         
@@ -2646,8 +2661,10 @@ class System():
                     #print(f'solving equilibrium {i+1}-_{self.nCpldDOF}')
                     self.solveEquilibrium(tol=eqTol)                       # let the system settle into equilibrium 
                     F2m = self.getForces(DOFtype="coupled", lines_only=lines_only)  # get resulting coupled DOF net force/moment response
-                    if tensions:  T2m = self.getTensions()
-                    
+                    print('F2m',F2m)
+                    if tensions:
+                        T2m = self.getTensions()
+                        print('T2m',T2m)
                     if plots > 0:
                         self.cpldDOFs.append(X2.copy())
                     
@@ -2667,7 +2684,22 @@ class System():
                     
                     # Break if the force is zero or the change in the first derivative is small 
                     #if abs(F1[i]) < 1 or abs(F2m[i]-2.0*F1[i]+F2p[i]) < 0.1*np.abs(F1[i]):  # note: the 0.1 is the adjustable tolerance
-                    if abs(F1[i]) < 1 or abs(F2m[i]-2.0*F1[i]+F2p[i]) < 0.1*np.abs(F2pi[i]-F2mi[i]):  # note: the 0.1 is the adjustable tolerance
+                    #if abs(F1[i]) < 1 and abs(F2m[i]-2.0*F1[i]+F2p[i]) < 0.1*np.abs(F2pi[i]-F2mi[i]):  # note: the 0.1 is the adjustable tolerance
+                    #F2m[2] += 4*self.T0
+                    #F2p[2] +=4*self.T0
+                    #F2pi[2] +=4*self.T0
+                    #F2mi[2] +=4*self.T0
+                    print('F2p',F2p)
+                    print('F2m',F2m)
+                    print(F2pi)
+                    print(F2mi)
+                    print('F1', F1)
+
+                    if tensions:
+                        print('T2p',T2p)
+                        print('T2m',T2m)
+
+                    if all(abs(F2m-2.0*F1+F2p)) < all(0.1*np.abs(F2pi-F2mi)):
                         break
                     elif j == nTries-1:
                         if self.display > 2:
@@ -2830,7 +2862,7 @@ class System():
                 # get body's self-stiffness matrix (now only cross-coupling terms will be handled on a line-by-line basis)
                 K6 = body1.getStiffnessA(lines_only=lines_only)
                 K[i:i+body1.nDOF, i:i+body1.nDOF] += K6
-                #print('Body1', K6)
+                print('Body1', K6)
                 
                 
                 # go through each attached point
@@ -2875,7 +2907,7 @@ class System():
                                         
                                         K[i:i+body1.nDOF, j:j+body2.nDOF] += K66    # f on B1 due to x of B2
                                         K[j:j+body2.nDOF, i:i+body1.nDOF] += K66.T  # mirror
-                                        print('Ik doe iet met K hiero in body2', K)
+                                        print('Ik doe iet met K hiero in body2', K66)
                                         # note: the additional rotational stiffness due to change in moment arm does not apply to this cross-coupling case
                                         endFound = 1  # signal that the line has been handled so we can move on to the next thing
                                         break  
@@ -2915,10 +2947,11 @@ class System():
                 n = point.nDOF
                 
                 # >>> TODO: handle case of free end point resting on seabed <<<
-                #print("DEZ POINT K PAK IK")
+                print("DEZ POINT K PAK IK")
                 # get point's self-stiffness matrix
                 K1 = point.getStiffnessA(lines_only=lines_only)
                 K[i:i+n,i:i+n] += K1
+                print(K1)
                 
                 # go through attached lines and add cross-coupling terms
                 for lineID in point.attached:
@@ -2939,6 +2972,8 @@ class System():
                                  
                                 # Trim stiffness matrix to only use the enabled DOFs of each point
                                 KB = KB[point.DOFs,:][:,point2.DOFs]
+
+                                print(KB)
                                 
                                 K[i:i+n          , j:j+point2.nDOF] += KB    # force on P1 due to movement of P2
                                 K[j:j+point2.nDOF, i:i+n          ] += KB.T  # mirror (f on P2 due to x of P1)
@@ -2947,7 +2982,7 @@ class System():
                                 
                 i += n
         
-        #print("DDE originele K", K)
+        print("DDE originele K", K)
         return K
     
     

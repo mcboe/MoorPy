@@ -307,7 +307,10 @@ class Point():
         #print("Getting Point "+str(self.number)+" analytic stiffness matrix...")
         
         K = np.zeros([3,3])         # create an empty 3x3 stiffness matrix
-        
+        K6 = np.zeros([6,6])
+        K31 = np.zeros([1,1])
+        K32 = np.zeros([1,1])
+        K36 = np.zeros([1,1])
         # append the stiffness matrix of each line attached to the point
         for lineID,endB in zip(self.attached,self.attachedEndB):
             line = self.sys.lineList[lineID-1]
@@ -316,6 +319,11 @@ class Point():
             if endB == 1:                  # assuming convention of end A is attached to the point, so if not,
                 #KA, KB = KB, KA            # swap matrices of ends A and B                                
                 K += line.KB
+                print('voorKK', K)
+                K31 += line.K31
+                K32 += line.K32
+                K36 += line.K36
+                print(K31)
             else:
                 K += line.KA 
             
@@ -338,10 +346,12 @@ class Point():
         if sum(np.isnan(K).ravel()) > 0: breakpoint()
         if xyz:
             #print("Deze K is input")                     # if asked to output all DOFs, do it
-            return K
+            print('K6point', K6)
+            return K, K6
+        
         else: 
             #print("Deze K is input")                      # otherwise only return rows/columns of active DOFs
-            return K[:,self.DOFs][self.DOFs,:]
+            return K[:,self.DOFs][self.DOFs,:], K31, K32, K36
         
     
     def getCost(self):

@@ -810,7 +810,10 @@ class Line():
         
         # horizontal and vertical dimensions of line profile (end A to B)
         LH = np.linalg.norm(dr[:2])
+        LH1 = dr[0]
+        LH2 = dr[1]
         LV = dr[2]
+        phiz = theta_z
         
         
         # ----- call catenary function or alternative and save results -----
@@ -821,11 +824,11 @@ class Line():
                 #print('pretension', self.sys.T0)
                 #print(self.VF)
                 if self.T0store == 0:
-                    (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
+                    (fAH, fAV, fBH, fBV, info) = catenary(LH,LH1, LH2, LV, self.L, phiz, self.EA, 
                         w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
                         nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
                 else:
-                    (fAH, fAV, fBH, fBV, info) = catenary(LH, LV, self.L, self.EA, 
+                    (fAH, fAV, fBH, fBV, info) = catenary(LH,LH1, LH2, LV, self.L, phiz, self.EA, 
                         w, CB=cb, alpha=alpha, HF0=self.HF, VF0=self.VF, Tol=tol, 
                         nNodes=self.nNodes, plots=profiles, depth=self.sys.depth, T0=self.sys.T0)
                 #print(info)
@@ -871,6 +874,8 @@ class Line():
         
         #print('HIER BEN IK EN DIT IS R', R)
         # save forces in global reference frame
+        # self.fA = np.matmul(np.array([fAH, 0, fAV]), R)
+        # self.fB = np.matmul(np.array([fBH, 0, fBV]), R)
         self.fA = np.matmul(np.array([fAH, 0, fAV]), R)
         self.fB = np.matmul(np.array([fBH, 0, fBV]), R)
         #print('FBBB', self.fB)
@@ -878,19 +883,25 @@ class Line():
         self.TB = np.linalg.norm(self.fB)
         
         # Compute transverse (out-of-plane) stiffness term
-        if LH < 0.1*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
+        if LH < 0.01*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
             #print("ik gebruik deze kt")
             Kt = 0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
         else:  # otherwise use the classic horizontal approach
             Kt = -fBH/LH
         
-        
+        print('KT', Kt)
+        self.K31 = info['stiffnessK31']
+        self.K32 = info['stiffnessK32']
+        self.K36 = info['stiffnessK36']
         # save 3d stiffness matrix in global orientation for both line ends (3 DOF + 3 DOF)
-        self.KA  = from2Dto3Drotated(info['stiffnessA'],  Kt, R.T)  # reaction at A due to motion of A
-        self.KB  = from2Dto3Drotated(info['stiffnessB'],  Kt, R.T)  # reaction at B due to motion of B
-        self.KBA = from2Dto3Drotated(info['stiffnessBA'],-Kt, R.T)  # reaction at B due to motion of A
+        self.KA  = from2Dto3Drotated(info['stiffnessA'],  Kt, R.T, self.L, self.K31)  # reaction at A due to motion of A
+        self.KB  = from2Dto3Drotated(info['stiffnessB'],  Kt, R.T, self.L, self.K31)  # reaction at B due to motion of B
+        self.KBA = from2Dto3Drotated(info['stiffnessBA'],-Kt, R.T, self.L, self.K31)  # reaction at B due to motion of A
         
-        #print('DEZE KB PAKKEN ZWE', self.KB)
+
+        #self.K6 = 
+        
+        print('DEZE KB PAKKEN ZWE', self.K31)
         
         # ----- calculate current loads if applicable, for use next time -----
         
@@ -1037,7 +1048,7 @@ class Line():
         self.L = self.L0
     
 
-def from2Dto3Drotated(K2D, Kt, R): 
+def from2Dto3Drotated(K2D, Kt, R, L, K31): 
     '''Initialize a line end's analytic stiffness matrix in the 
     plane of the catenary then rotate the matrix to be about the 
     global frame using [K'] = [R][K][R]^T
@@ -1059,6 +1070,10 @@ def from2Dto3Drotated(K2D, Kt, R):
     K2 = np.array([[K2D[0,0], 0 , K2D[0,1]],
                    [  0     , Kt,   0     ],
                    [K2D[1,0], 0 , K2D[1,1]]])
+
+    # K2 = np.array([[K2D[0,0], 0 , K2D[0,1]],
+    #                [  0     , Kt,   0     ],
+    #                [K31,       0, K2D[1,1]]])
     
     return np.matmul(np.matmul(R, K2), R.T)    
 
