@@ -357,9 +357,9 @@ class Body():
             K31 = self.sys.pointList[PointID-1].getStiffnessA()[1]
             K32 = self.sys.pointList[PointID-1].getStiffnessA()[2]
             K36 = self.sys.pointList[PointID-1].getStiffnessA()[3]
-            print(r, rPointRel, self.r6)
+            #print(r, rPointRel, self.r6)
             #print(f3)
-            print('K3 hieroo', K31)
+            #print('K3 hieroo', K31)
             
             # following are from functions translateMatrix3to6
             H = getH(r)
@@ -368,15 +368,17 @@ class Body():
             #print('EERSTE', K)
             K[:3,3:] += np.matmul(K3, H)     
             #print('tweede', K)                   # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end
-            K[2,0] += K31
-            K[2,1] += K32
+            #K[2,0] += K31
+            #K[2,1] += K32
             #K[2,5] += K36
             K[3:,3:] += -np.matmul(getH(f3), H) - np.matmul(H, np.matmul(K3,H))   # updated 2023-05-02
             
             #print('derde', K) 
         K[3:,:3] = K[:3,3:].T                                   # copy over other off-diagonal sub-matrix
         #K[0,4] = 0
+        #K[4,0] = 0
         #K[1,3] = 0
+        #K[3,1] = 0
         #print('K6!!!', K6)
         #K6[2,4] = line.K31
         

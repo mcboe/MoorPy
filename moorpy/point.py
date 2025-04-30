@@ -319,11 +319,11 @@ class Point():
             if endB == 1:                  # assuming convention of end A is attached to the point, so if not,
                 #KA, KB = KB, KA            # swap matrices of ends A and B                                
                 K += line.KB
-                print('voorKK', K)
+                #print('voorKK', K)
                 K31 += line.K31
                 K32 += line.K32
                 K36 += line.K36
-                print(K31)
+                #print(K31)
             else:
                 K += line.KA 
             
