@@ -370,8 +370,11 @@ class Body():
             #print('tweede', K)                   # only add up one off-diagonal sub-matrix for now, then we'll mirror at the end
             #K[2,0] += K31
             #K[2,1] += K32
+            #K[0,2] += K31
+            #K[1,2] += K32
             #K[2,5] += K36
             K[3:,3:] += -np.matmul(getH(f3), H) - np.matmul(H, np.matmul(K3,H))   # updated 2023-05-02
+            print('IEDERE POIN UPDATE',K)
             
             #print('derde', K) 
         K[3:,:3] = K[:3,3:].T                                   # copy over other off-diagonal sub-matrix

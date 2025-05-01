@@ -1581,6 +1581,7 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         T = np.sqrt(HF0**2+VF0**2)
         #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
         delta_L = np.sqrt(XF**2 + ZF**2)-75
+        print('loccie', XF, ZF)
         if delta_L >= 0:
             HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
             VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
@@ -1613,7 +1614,13 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #print('LENGTHHH', L)
         K_h = 0.5*(T0/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
         K_v = (T0/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
-        K31 = XFnl/(2*L)* K_v #(T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched)) #1/(2*L_stretched)* K_v #0.5* (T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched))
+        #K_h = 0.5*(T0/L_stretched * (1 - XF / L_stretched) + EA/L_stretched * ( XF/ L_stretched))  # Axial stiffness
+        #K_v = (T0/L_stretched * (1- XF / L_stretched)) + EA/L_stretched * (ZF / L_stretched)  # Small horizontal stiffness
+        # if XFnl == 0:
+        #     K31 = 1/(L)* K_v #(T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched)) #1/(2*L_stretched)* K_v #0.5* (T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched))
+        # else:
+        K31 = XFnl/(L)* K_v
+        
         K32 = YFnl/(2*L)* K_v
         K36 = XF**2 * 1/(2*L_stretched)*K_v
         #
@@ -1648,7 +1655,7 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         # Store results in info dictionary
         info["HF"] = HF  # Horizontal force
         info["VF"] = VF  # Vertical force
-        info["stiffnessB"]  = np.array([[ K_h, 0.0], [0 , K_v]])  # Stiffness at fairlead
+        info["stiffnessB"]  = np.array([[ K_h, K31], [K31 , K_v]])  # Stiffness at fairlead
         info["stiffnessA"]  = np.array([[ K_h, 0.0], [0.0, K_v]])  # Stiffness at anchor
         info["stiffnessBA"] = np.array([[-K_h, 0.0], [0.0, -K_v]])  # Coupling stiffness
         info["LBot"] = 0.0  # No bottom contact

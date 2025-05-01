@@ -2544,7 +2544,7 @@ class System():
         return K
         
     
-    def getCoupledStiffness(self, dx=0.01, dth=0.01, solveOption=0, lines_only=False, tensions=False, nTries=3, plots=0):
+    def getCoupledStiffness(self, dx=0.01, dth=0.01, solveOption=1, lines_only=False, tensions=False, nTries=3, plots=0):
         #print('getCoupledStiffness ben ik geweest')
         '''Calculates the stiffness matrix for coupled degrees of freedom of a mooring system
         with free uncoupled degrees of freedom equilibrated. 
@@ -2862,7 +2862,7 @@ class System():
                 # get body's self-stiffness matrix (now only cross-coupling terms will be handled on a line-by-line basis)
                 K6 = body1.getStiffnessA(lines_only=lines_only)
                 K[i:i+body1.nDOF, i:i+body1.nDOF] += K6
-                print('Body1', K6)
+                #print('Body1', K6)
                 
                 
                 # go through each attached point
@@ -2982,7 +2982,7 @@ class System():
                                 
                 i += n
         
-        print("DDE originele K", K)
+        #print("DDE originele K", K)
         return K
     
     

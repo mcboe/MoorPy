@@ -448,14 +448,14 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         Y, oths, stop = eval_func(X, args)
         
         ytol = [0,0]
-        ytol = [10000,10000,100000,1000000,1000000,1000000]
-        # check for convergece
-        if Y[0] > 0:
-            #ytol = abs(Y*0.1)
+        # ytol = [10000,10000,10000,10000000,10000000,10000000]
+        # # check for convergece
+        # if Y[0] > 0:
+        #     #ytol = abs(Y*0.1)
 
-            for i in range(len(ytol)):
-                if ytol[i] == 0:
-                    ytol[i] = 1
+        #     for i in range(len(ytol)):
+        #         if ytol[i] == 0:
+        #             ytol[i] = 1
 
         Ytarget[0:6] = [0,0,0,0,0,0]
         #Ytarget[2] = -Y[2] + Y[-4]
