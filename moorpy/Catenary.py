@@ -1565,7 +1565,7 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         
         # Compute axial elongation due to pretension
         #delta_L = T0 / (EA / L)  # Axial stretch based on Hooke’s Law
-        L = 75
+        #L = 75
         # if HF0 == 0:
         #     #delta_L = (np.sqrt(HF0**2 + T0**2)-T0)/(EA/L)
         #     delta_L = np.sqrt(XF**2 + ZF**2)-75
@@ -1577,17 +1577,21 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #         VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
 
         # else:
-        L = 75
+        #L = 75
         T = np.sqrt(HF0**2+VF0**2)
         #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
-        delta_L = np.sqrt(XF**2 + ZF**2)-75
+        delta_L = np.sqrt(XF**2 + ZF**2)-L
         print('loccie', XF, ZF)
         if delta_L >= 0:
-            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
-            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+            HF = EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = EA*(delta_L/L)*(ZF/(L+delta_L))
+            #HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            #VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
         else:
-            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
-            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+            #HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            #VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+            HF = EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = EA*(delta_L/L)*(ZF/(L+delta_L))
 
         
         #delta_L = np.sqrt(XF**2 + ZF**2)-L
@@ -1614,8 +1618,12 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #print('LENGTHHH', L)
         #K_h = 0.5*(T0/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
         #K_v = (T0/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
-        K_h = (T0*ZF/(L_stretched**2) + EA*XF/(L_stretched)**2)  # Axial stiffness
-        K_v = (T0*XF/(L_stretched**2) + EA/L_stretched * (ZF / L_stretched))
+        #K_h = (T/(L_stretched)) # Axial stiffness
+        #K_v = (T/(L_stretched))
+        cx = XF / L_stretched
+        cz = ZF / L_stretched
+        K_h = T * (1 - cx) / L_stretched + EA * cx / L_stretched
+        K_v = T * (1 - cz) / L_stretched + EA * cz / L_stretched
         #K_h = T0*(1/(L+delta_L)) + EA*(delta_L/L)*(1/(L+delta_L)) #(T0/(L_stretched)) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
         #K_v = T0*(1/(L+delta_L)) + EA*(delta_L/L)*(1/(L+delta_L)) #(T0/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
         #K_h = 0.5*(T0/L_stretched * (1 - XF / L_stretched) + EA/L_stretched * ( XF/ L_stretched))  # Axial stiffness
@@ -1623,9 +1631,9 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         # if XFnl == 0:
         #     K31 = 1/(L)* K_v #(T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched)) #1/(2*L_stretched)* K_v #0.5* (T0/L_stretched * ((ZF / L_stretched)-1 ) + EA/L_stretched * (ZF / L_stretched))
         # else:
-        K31 = 0 #XFnl/(L)* K_v
+        K31 = XFnl/(2*L)* K_v
         
-        K32 = 0 #YFnl/(2*L)* K_v
+        K32 = YFnl/(2*L)* K_v
         K36 = XF**2 * 1/(2*L_stretched)*K_v
         #
         print('Values')
