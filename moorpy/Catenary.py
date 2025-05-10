@@ -1583,15 +1583,15 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         delta_L = np.sqrt(XF**2 + ZF**2)-L
         print('loccie', XF, ZF)
         if delta_L >= 0:
-            HF = EA*(delta_L/L)*(XF/(L+delta_L))
-            VF = EA*(delta_L/L)*(ZF/(L+delta_L))
-            #HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
-            #VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+            #HF = EA*(delta_L/L)*(XF/(L+delta_L))
+            #VF = EA*(delta_L/L)*(ZF/(L+delta_L))
+            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
         else:
-            #HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
-            #VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
-            HF = EA*(delta_L/L)*(XF/(L+delta_L))
-            VF = EA*(delta_L/L)*(ZF/(L+delta_L))
+            HF = T0*(XF/(L+delta_L)) + EA*(delta_L/L)*(XF/(L+delta_L))
+            VF = T0*(ZF/(L+delta_L)) + EA*(delta_L/L)*(ZF/(L+delta_L))
+            #HF = EA*(delta_L/L)*(XF/(L+delta_L))
+            #VF = EA*(delta_L/L)*(ZF/(L+delta_L))
 
         
         #delta_L = np.sqrt(XF**2 + ZF**2)-L
@@ -1616,12 +1616,12 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #K_v = EA / L  # Axial stiffness
         #K_h = T / L  # Small horizontal stiffness
         #print('LENGTHHH', L)
-        K_h = 0.5*(T/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
-        K_v = (T/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
+        K_h = 0.5*(T0/L_stretched * (1 + (ZF / L_stretched)**2) + EA/L_stretched * (XF / L_stretched)**2)  # Axial stiffness
+        K_v = (T0/L_stretched * (XF / L_stretched)**2 + EA/L_stretched * (ZF / L_stretched)**2)  # Small horizontal stiffness
         #K_h = (T/(L_stretched)) # Axial stiffness
         #K_v = (T/(L_stretched))
-        cx = XF / L_stretched
-        cz = ZF / L_stretched
+        #cx = XF / L_stretched
+        #cz = ZF / L_stretched
         #K_h = T * (1 - cx) / L_stretched + EA * cx / L_stretched
         #K_v = T * (1 - cz) / L_stretched + EA * cz / L_stretched
         #K_h = T * (1 - cx) / L_stretched + EA * cx / L_stretched
