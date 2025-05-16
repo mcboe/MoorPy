@@ -1581,7 +1581,7 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         T = np.sqrt(HF0**2+VF0**2)
         #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
         delta_L = np.sqrt(XF**2 + ZF**2)-L
-        print('loccie', XF, ZF)
+        #print('loccie', XF, ZF)
         if delta_L >= 0:
             #HF = EA*(delta_L/L)*(XF/(L+delta_L))
             #VF = EA*(delta_L/L)*(ZF/(L+delta_L))
@@ -1609,8 +1609,8 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         HA = HF  # Horizontal force at anchor
         VA = VF  # Vertical force at anchor
         T = np.sqrt(HF**2+VF**2)
-        print('TENSIONSS', T)
-        print('Forcess', HF, VF, HF0, VF0, XF, ZF, delta_L)
+        #print('TENSIONSS', T)
+        #print('Forcess', HF, VF, HF0, VF0, XF, ZF, delta_L)
         
         # Define stiffness matrix (pure axial stiffness)
         #K_v = EA / L  # Axial stiffness
@@ -1638,13 +1638,13 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         K32 = 0#YFnl/(2*L)* K_v
         K36 = XF**2 * 1/(2*L_stretched)*K_v
         #
-        print('Values')
-        print(T0)
-        print(K_h)
-        print(ZF / L_stretched)
-        print(EA/L_stretched)
-        print(ZF, XF, L_stretched)
-        print(K31)
+        #print('Values')
+        #print(T0)
+        #print(K_h)
+        #print(ZF / L_stretched)
+        #print(EA/L_stretched)
+        #print(ZF, XF, L_stretched)
+        #print(K31)
         #print('ËAAAA', EA)
         #Schreier test
         # delta_L = np.sqrt(XF**2 + ZF**2)-L

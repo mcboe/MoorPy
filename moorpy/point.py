@@ -151,7 +151,7 @@ class Point():
         
         # update the position of any attached Line ends
         for LineID,endB in zip(self.attached,self.attachedEndB):
-            print('setline',LineID,endB)
+            #print('setline',LineID,endB)
             self.sys.lineList[LineID-1].setEndPosition(self.r, endB)
             
         if len(self.r) < 3:

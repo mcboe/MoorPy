@@ -460,8 +460,8 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         Ytarget[0:6] = [0,0,0,0,0,0]
         #Ytarget[2] = -Y[2] + Y[-4]
 
-        print('forcescheck',Ytarget )
-        print('forcescheck',Y)
+        #print('forcescheck',Ytarget )
+        #print('forcescheck',Y)
         # compute error
         err = Y - Ytarget
         
@@ -584,8 +584,8 @@ def dsolve2(eval_func, X0, Ytarget=[], step_func=None, args=[], tol=0.0001, ytol
         # dXlist2[iter,:] = dX
         # check for convergence
         #if (ytol==0 and all(np.abs(dX) < tols)) or (ytol > 0 and all(np.abs(err) < ytol)):
-        print('ytol', ytol)
-        print(dX)
+        #print('ytol', ytol)
+        #print(dX)
 
         #dxrel = np.abs(((dX-dX_last)))    
         #print('dxrel', dxrel)
@@ -789,8 +789,8 @@ def dsolve2flex(eval_func, X0, heightlist, Ytarget=[], step_func=None, args=[], 
         err = Y - Ytarget
         
 
-        print('forcecheck', Y)
-        print('forcecheck', Ytarget)
+        #print('forcecheck', Y)
+        #print('forcecheck', Ytarget)
         #print(Y)
         #print('Targettsss',Ytarget)
         

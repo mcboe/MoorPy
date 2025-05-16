@@ -1700,7 +1700,7 @@ class System():
             types = [0]
             f = np.zeros(nDOF)
         elif DOFtype == "coupled":
-            print('IK BEN COUPLED')
+            #print('IK BEN COUPLED')
             types = [-1]
             f = np.zeros(nCpldDOF)
         elif DOFtype == "both":
@@ -1715,7 +1715,7 @@ class System():
         for body in self.bodyList:
                 if body.type in types:
                     f[i:i+body.nDOF] = body.getForces(lines_only=lines_only)
-                    print('Body loads', f)
+                    #print('Body loads', f)
                     i += body.nDOF
                     
         # gather net loads from points
@@ -1723,7 +1723,7 @@ class System():
             if point.type in types:
                 f[i:i+point.nDOF] = point.getForces(lines_only=lines_only)        # note: only including active DOFs of the point (may be less than all 3)
                 i += point.nDOF
-                print('point loads', f)
+                #print('point loads', f)
         
         return np.array(f)   
         
@@ -1955,7 +1955,7 @@ class System():
         self.solveEquilibrium(DOFtype=DOFtype, plots=plots, tol=tol, rmsTol=rmsTol, maxIter=maxIter, display=display, no_fail=no_fail, finite_difference=finite_difference)
         
         
-    def solveEquilibrium(self, DOFtype="free", plots=0, tol=0.05, rmsTol=0.0, maxIter=500, display=2, no_fail=False, finite_difference=False):
+    def solveEquilibrium(self, DOFtype="free", plots=0, tol=0.05, rmsTol=0.0, maxIter=500, display=0, no_fail=False, finite_difference=False):
         '''Solves for the static equilibrium of the system using the dsolve function approach in MoorSolve
 
         Parameters
@@ -2575,7 +2575,7 @@ class System():
             nCpldDOF x nCpldDOF stiffness matrix of the system
 
         '''
-        self.display = 3
+        #self.display = 3
         self.nDOF, self.nCpldDOF, _ = self.getDOFs()
         
         if self.display > 2:
@@ -2615,10 +2615,10 @@ class System():
                 self.setPositions(X2, DOFtype="coupled")      # set the perturbed coupled DOFs
                 self.solveEquilibrium()                       # let the system settle into equilibrium  (note that this might prompt a warning if there are no free DOFs)
                 F2p = self.getForces(DOFtype="coupled", lines_only=lines_only)  # get resulting coupled DOF net force/moment response
-                print('F2p',F2p)
+                #print('F2p',F2p)
                 if tensions:
                     T2p = self.getTensions()
-                    print('T2p',T2p)
+                    #print('T2p',T2p)
                 
                 if self.display > 2:
                     print(F2p)
@@ -2626,10 +2626,10 @@ class System():
                     self.cpldDOFs.append(X2)
                 
                 K[:,i] = -(F2p-F1)/dX[i]                # take finite difference of force w.r.t perturbation
-                print('K[:,i]',K[:,i])
+                #print('K[:,i]',K[:,i])
                 if tensions:
                     J[:,i] = (T2p-T1)/dX[i]
-                    print('J[:,i]',J[:,i])
+                    #print('J[:,i]',J[:,i])
             
         elif solveOption==1:  # ::: adaptive central difference approach :::
         
@@ -2947,11 +2947,11 @@ class System():
                 n = point.nDOF
                 
                 # >>> TODO: handle case of free end point resting on seabed <<<
-                print("DEZ POINT K PAK IK")
+                #print("DEZ POINT K PAK IK")
                 # get point's self-stiffness matrix
                 K1 = point.getStiffnessA(lines_only=lines_only)
                 K[i:i+n,i:i+n] += K1
-                print(K1)
+                #print(K1)
                 
                 # go through attached lines and add cross-coupling terms
                 for lineID in point.attached:

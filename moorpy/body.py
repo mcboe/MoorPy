@@ -110,8 +110,8 @@ class Body():
         self.attachedP.append(pointID)
         self.rPointRel.append(np.array(rAttach))
         
-        if self.sys.display > 1:
-            print("attached Point "+str(pointID)+" to Body "+str(self.number))
+        #if self.sys.display > 1:
+            #print("attached Point "+str(pointID)+" to Body "+str(self.number))
     
     """
     def dettachPoint(self, pointID):
@@ -186,9 +186,9 @@ class Body():
         
         # update the position of any attached Points
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
-            print(self.r6)
+            #print(self.r6)
             rPoint = np.matmul(self.R, rPointRel) + self.r6[:3]  # rPoint = transformPosition(rPointRel, r6)   
-            print('updatepoint', rPoint)         
+            #print('updatepoint', rPoint)         
             self.sys.pointList[PointID-1].setPosition(rPoint)
             
         # update the position of any attached Rods        
@@ -249,10 +249,10 @@ class Body():
         for PointID,rPointRel in zip(self.attachedP,self.rPointRel):
         
             fPoint = self.sys.pointList[PointID-1].getForces(lines_only=lines_only) # get net force on attached Point
-            print('FPOIN', fPoint)
+            #print('FPOIN', fPoint)
             rPoint_rotated = rotatePosition(rPointRel, self.r6[3:])                 # relative position of Point about body ref point in unrotated reference frame  
             f6 += translateForce3to6DOF(rPoint_rotated, fPoint)                     # add net force and moment resulting from its position to the Body
-            print('fairlead location', rPoint_rotated)
+            #print('fairlead location', rPoint_rotated)
             
         # All forces and moments on the body should now be summed, and are in global/unrotated orientations.
         '''

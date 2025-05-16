@@ -861,7 +861,7 @@ class Line():
             self.Zs = Zs
             self.Ts = info["Te"]
         self.T0store = self.Ts[0]
-        print('self.T0store', self.T0store)
+        #print('self.T0store', self.T0store)
         
         # save fairlead tension components for use as ICs next iteration
         self.HF = info["HF"]
@@ -889,7 +889,7 @@ class Line():
         else:  # otherwise use the classic horizontal approach
             Kt = -fBH/LH
         
-        print('KT', Kt)
+        #print('KT', Kt)
         self.K31 = info['stiffnessK31']
         self.K32 = info['stiffnessK32']
         self.K36 = info['stiffnessK36']
@@ -901,7 +901,7 @@ class Line():
 
         #self.K6 = 
         
-        print('DEZE KB PAKKEN ZWE', self.K31)
+        #print('DEZE KB PAKKEN ZWE', self.K31)
         
         # ----- calculate current loads if applicable, for use next time -----
         
