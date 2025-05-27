@@ -1581,10 +1581,10 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #T = np.sqrt(HF0**2+VF0**2)
         #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
         delta_L = np.sqrt(XF**2 + ZF**2)-L
-        print('delta_L', delta_L)
-        print(XF)
-        print(ZF)
-        print(L)
+        # print('delta_L', delta_L)
+        # print(XF)
+        # print(ZF)
+        # print(L)
         #print('loccie', XF, ZF)
         if delta_L >= 0:
             #HF = EA*(delta_L/L)*(XF/(L+delta_L))
@@ -1693,9 +1693,9 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #print("Symmetry Check (K_B - K_B.T):\n", info["stiffnessB"] - info["stiffnessB"].T)
         # Plotting (for debugging or visualization)
         if plots > 0:
-            print('s', s)
-            print(L)
-            print(delta_L)
+            #print('s', s)
+            #print(L)
+            #print(delta_L)
             # for I in range(nNodes):
             #     Lms = L - s[I]  # Distance from end B
             #     Xs[I] = XF * (s[I] / L)  # Approximate horizontal position
@@ -1708,8 +1708,8 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
                 Zs[I] = frac * ZF
                 Te[I] = np.sqrt(HF**2 + VF**2)  # constant tension
 
-            print(Xs)
-            print(Zs)   
+            #print(Xs)
+            #print(Zs)   
         #print('PROFILE TYPE IS', ProfileType)
                 
         

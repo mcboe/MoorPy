@@ -863,8 +863,8 @@ class Line():
                 Ys[i] = self.rA[1] + unrot_pos[1]
                 Zs[i] = self.rA[2] + unrot_pos[2]
 
-                print('self.rA', self.rA)
-                print(unrot_pos)
+                #print('self.rA', self.rA)
+                #print(unrot_pos)
             
             
             self.Xs = Xs

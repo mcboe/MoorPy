@@ -153,8 +153,8 @@ class Point():
         for LineID,endB in zip(self.attached,self.attachedEndB):
             #print('setline',LineID,endB)
             self.sys.lineList[LineID-1].setEndPosition(self.r, endB)
-            print('endB', endB)
-            print(self.r)
+            #print('endB', endB)
+            #print(self.r)
             
         if len(self.r) < 3:
             print("Double check how this point's position vector is calculated")
