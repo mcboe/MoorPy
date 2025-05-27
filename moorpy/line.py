@@ -13,7 +13,7 @@ from os import path
 class Line():
     '''A class for any mooring line that consists of a single material'''
 
-    def __init__(self, mooringSys, num, L, lineType, nSegs=100, cb=0, isRod=0, attachments = [0,0]):
+    def __init__(self, mooringSys, num, L, lineType, nSegs=1, cb=0, isRod=0, attachments = [0,0]):
         '''Initialize Line attributes
 
         Parameters
@@ -351,6 +351,7 @@ class Line():
             Ys = self.Ys
             Zs = self.Zs
             Ts = self.Ts
+            print(Xs)
             return Xs, Ys, Zs, Ts
             
         # otherwise, count on read-in time-series data
@@ -534,6 +535,11 @@ class Line():
         linebit = []  # make empty list to hold plotted lines, however many there are
         
         Xs, Ys, Zs, tensions = self.getLineCoords(Time)
+        print('Xs', Xs)
+        print(Ys)
+        print(Zs)
+        print(self.qs)
+        
         
         if self.isRod > 0:
             for i in range(int(len(Xs)/2-1)):
@@ -857,6 +863,10 @@ class Line():
                 Ys[i] = self.rA[1] + unrot_pos[1]
                 Zs[i] = self.rA[2] + unrot_pos[2]
 
+                print('self.rA', self.rA)
+                print(unrot_pos)
+            
+            
             self.Xs = Xs
             self.Ys = Ys
             self.Zs = Zs

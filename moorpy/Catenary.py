@@ -1578,9 +1578,13 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
 
         # else:
         #L = 75
-        T = np.sqrt(HF0**2+VF0**2)
+        #T = np.sqrt(HF0**2+VF0**2)
         #delta_L = (np.sqrt(HF0**2 + VF0**2)-T0)/(EA/L)
         delta_L = np.sqrt(XF**2 + ZF**2)-L
+        print('delta_L', delta_L)
+        print(XF)
+        print(ZF)
+        print(L)
         #print('loccie', XF, ZF)
         if delta_L >= 0:
             #HF = EA*(delta_L/L)*(XF/(L+delta_L))
@@ -1689,12 +1693,23 @@ def catenary(XF, XFnl, YFnl, ZF, L, phiz, EA, W, CB=0, alpha=0, HF0=0, VF0=0, To
         #print("Symmetry Check (K_B - K_B.T):\n", info["stiffnessB"] - info["stiffnessB"].T)
         # Plotting (for debugging or visualization)
         if plots > 0:
-            for I in range(nNodes):
-                Lms = L - s[I]  # Distance from end B
-                Xs[I] = XF * (s[I] / L)  # Approximate horizontal position
-                Zs[I] = ZF - Lms * (1 + delta_L / L)  # Stretched vertical position
+            print('s', s)
+            print(L)
+            print(delta_L)
+            # for I in range(nNodes):
+            #     Lms = L - s[I]  # Distance from end B
+            #     Xs[I] = XF * (s[I] / L)  # Approximate horizontal position
+            #     Zs[I] = ZF - Lms * (1 + delta_L / L)  # Stretched vertical position
                 
-                Te[I] = np.sqrt(HF**2+VF**2)  # Constant pretension throughout the tendon            
+            #     Te[I] = np.sqrt(HF**2+VF**2)  # Constant pretension throughout the tendon         
+            for I in range(nNodes):
+                frac = s[I] / L  # fraction along the unstretched line
+                Xs[I] = frac * XF
+                Zs[I] = frac * ZF
+                Te[I] = np.sqrt(HF**2 + VF**2)  # constant tension
+
+            print(Xs)
+            print(Zs)   
         #print('PROFILE TYPE IS', ProfileType)
                 
         
