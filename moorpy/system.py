@@ -957,6 +957,8 @@ class System():
                 pointType = 1
                 # attach to ground body for ease of identifying anchors
                 self.groundBody.attachPoint(num, d['location']) 
+                print('num', num)
+                print(d['location'])
                 
             elif ("body" in entry1):
                 pointType = 1
@@ -2947,11 +2949,12 @@ class System():
                 n = point.nDOF
                 
                 # >>> TODO: handle case of free end point resting on seabed <<<
-                #print("DEZ POINT K PAK IK")
+                print("DEZ POINT K PAK IK")
                 # get point's self-stiffness matrix
                 K1 = point.getStiffnessA(lines_only=lines_only)
                 K[i:i+n,i:i+n] += K1
-                #print(K1)
+                print(K1)
+                print(K)
                 
                 # go through attached lines and add cross-coupling terms
                 for lineID in point.attached:

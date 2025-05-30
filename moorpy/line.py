@@ -894,7 +894,7 @@ class Line():
         self.TB = np.linalg.norm(self.fB)
         
         # Compute transverse (out-of-plane) stiffness term
-        if LH < 0.01*abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
+        if LH < abs(LV):  # if line is nearly vertical (note: this theshold is unverified)
             #print("ik gebruik deze kt")
             Kt = 0.5*(fAV-fBV)/LV  # compute Kt based on vertical tension/span
         else:  # otherwise use the classic horizontal approach
@@ -1079,7 +1079,7 @@ def from2Dto3Drotated(K2D, Kt, R, L, K31):
     3x3 stiffness matrix in global orientation [N/m].
     '''    
     K2 = np.array([[K2D[0,0], 0 , K2D[0,1]],
-                   [  0     , Kt,   0     ],
+                   [  0     , K2D[0,0],   0     ],
                    [K2D[1,0], 0 , K2D[1,1]]])
 
     # K2 = np.array([[K2D[0,0], 0 , K2D[0,1]],

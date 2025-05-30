@@ -360,7 +360,7 @@ class Body():
             K36 = self.sys.pointList[PointID-1].getStiffnessA()[3]
             #print(r, rPointRel, self.r6)
             #print(f3)
-            #print('K3 hieroo', K31)
+            print('K3 hieroo', K3)
             
             # following are from functions translateMatrix3to6
             H = getH(r)
@@ -375,7 +375,7 @@ class Body():
             #K[1,2] += K32
             #K[2,5] += K36
             K[3:,3:] += -np.matmul(getH(f3), H) - np.matmul(H, np.matmul(K3,H))   # updated 2023-05-02
-            #print('IEDERE POIN UPDATE',K)
+            print('IEDERE POIN UPDATE',K)
             
             #print('derde', K) 
         K[3:,:3] = K[:3,3:].T                                   # copy over other off-diagonal sub-matrix
